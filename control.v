@@ -1,18 +1,18 @@
 module control(
     input clk,
+    input Reset,
     input go,
     input wire game_over,
-    output reg good_whack,
+    output reg valid_whack,
     );
 
-    reg [4:0] current_state, next_state;
+    reg [3:0] current_state, next_state;
 
     // STATES:
         // S_START
         // S_GAME_ACTIVE
         // S_GAME_MISSED
         // S_GAME_WHACKED
-        // S_PAUSE
         // S_GAME_OVER
 
 
@@ -65,65 +65,28 @@ module control(
     begin: enable_signals
         // By default make all our signals 0
         game_over = 1'b0;
-        good_whack = 1'b0;
+        valid_whack = 1'b0;
 
 
         case (current_state)
-            S_LOAD_A: begin
-                ld_a = 1'b1;
-                end
-            S_LOAD_B: begin
-                ld_b = 1'b1;
-                end
-            S_LOAD_C: begin
-                ld_c = 1'b1;
-                end
-            S_LOAD_X: begin
-                ld_x = 1'b1;
-                end
-            // Multiplication select a and x
-            S_CYCLE_0: begin 
-                ld_alu_out = 1'b1; 
-                alu_select_a = 2'b00; // Select a
-                alu_select_b = 2'b11; 
-                ld_a = 1'b1; 
-                alu_op = 1'b1; 
+
+            S_START: begin 
+
             end
-            // Multiplication select b and x
-            S_CYCLE_1: begin
-                ld_alu_out = 1'b1; 
-                alu_select_a = 2'b01; 
-                alu_select_b = 2'b11; 
-                ld_b = 1'b1; 
-                alu_op = 1'b1; 
+            S_GAME_ACTIVE: begin 
+                valid_whack = 1'b0;
             end
-            // Multiplication select a and x
-             S_CYCLE_2: begin
-                ld_alu_out = 1'b1;
-                alu_select_a = 2'b00; // Select a
-                alu_select_b = 2'b11; 
-                ld_a = 1'b1; 
-                alu_op = 1'b1; // Do multiply operation
+            S_GAME_MISSED: begin 
+                valid_whack = 1'b0;
             end
-            // Addition select a and x
-            S_CYCLE_3: begin
-                ld_alu_out = 1'b1;
-                alu_select_a = 2'b00; // Select a
-                alu_select_b = 2'b01; 
-                ld_a = 1'b1; 
-                alu_op = 1'b0; // Do add operation
+            S_GAME_WHACKED: begin 
+                valid_whack = 1'b1;
             end
-            // Addition select a and x and store in r
-            S_CYCLE_4: begin
-                alu_select_a = 2'b00; // Select a
-                alu_select_b = 2'b10; 
-                ld_r = 1'b1; 
-                alu_op = 1'b0; // Do add operation
+            S_GAME_OVER: begin 
+                game_over = 1'b1;
             end
-            S_CYCLE_5: begin
-                result_valid = 1'b1; 
-                ld_a = 1'b1;
-            end
+            
+
         // default:    // don't need default since we already made sure all of our outputs were assigned a value at the start of the always block
         endcase
     end // enable_signals
@@ -132,8 +95,9 @@ module control(
     always@(posedge clk)
     begin: state_FFs
         if(Reset)
-            current_state <= S_LOAD_A;
+            current_state <= S_START;
         else
             current_state <= next_state;
     end // state_FFS
+
 endmodule
