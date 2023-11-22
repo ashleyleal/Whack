@@ -22,31 +22,42 @@ module control(
 
 
     localparam      
-                S_START         = 3'd0,
-                S_GAME_ACTIVE   = 3'd1,
-                S_GAME_MISSED   = 3'd2,
-                S_GAME_WHACKED  = 3'd3,
-                S_GAME_OVER     = 3'd4,
+                S_START              = 4'd0,
+                S_START_WAIT         = 4'd1,
+                S_GAME_ACTIVE        = 4'd2,
+                S_GAME_ACTIVE_WAIT   = 4'd3,
+                S_GAME_MISSED        = 4'd4,
+                S_GAME_MISSED_WAIT   = 4'd5,
+                S_GAME_WHACKED       = 4'd6,
+                S_GAME_WHACKED_WAIT  = 4'd7,
+                S_GAME_OVER          = 4'd8,
+                S_GAME_OVER_WAIT     = 4'd9,
 
     // Next state logic aka our state table
     always@(*)
     begin: state_table
             case (current_state)
 
-                S_START: next_state = go ? S_GAME_ACTIVE : S_START; //start to game
-                S_GAME_ACTIVE: 
+                S_START: next_state = go ? S_START_WAIT : S_START;
+                S_START_WAIT: next_state = go ? S_GAME_ACTIVE : S_START_WAIT; //start to game
+                
+                S_GAME_ACTIVE: next_state = go ? S_GAME_ACTIVE_WAIT : S_GAME_ACTIVE;
+                S_GAME_ACTIVE_WAIT: 
                     if (~game_over & go) next_state = S_GAME_WHACKED;
                     else if (~game_over & ~go) next_state = S_GAME_MISSED;
                     else next_state = S_GAME_OVER;
-                S_GAME_MISSED: 
+                S_GAME_MISSED: next_state = go ? S_GAME_MISSED_WAIT : S_GAME_MISSED;
+                S_GAME_MISSED_WAIT: 
                     if (game_over) next_state = S_GAME_OVER;
                     else if (go) next_state = S_GAME_ACTIVE;
                     else next_state = S_GAME_MISSED;
-                S_GAME_WHACKED: 
+                S_GAME_WHACKED: next_state = go ? S_GAME_WHACKED_WAIT : S_GAME_WHACKED;
+                S_GAME_WHACKED_WAIT: 
                     if (game_over) next_state = S_GAME_OVER;
                     else if (go) next_state = S_GAME_ACTIVE;
                     else next_state = S_GAME_WHACKED;
-                S_GAME_OVER:
+                S_GAME_OVER: next_state = go ? S_GAME_OVER_WAIT : S_GAME_OVER;
+                S_GAME_OVER_WAIT:
                     if (go) next_state = S_START;
                     else next_state = S_GAME_OVER;
             default:     next_state = S_START;
