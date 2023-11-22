@@ -2,15 +2,10 @@ module control(
     input clk,
     input go,
     input wire game_over,
-
-    output reg successful_whack,
-    output reg  ld_alu_out,
-    output reg [1:0]  alu_select_a, alu_select_b,
-    output reg alu_op,
-    output reg result_valid
+    output reg good_whack,
     );
 
-    reg [5:0] current_state, next_state;
+    reg [4:0] current_state, next_state;
 
     // STATES:
         // S_START
@@ -69,16 +64,9 @@ module control(
     always @(*)
     begin: enable_signals
         // By default make all our signals 0
-        ld_alu_out = 1'b0;
-        ld_a = 1'b0;
-        ld_b = 1'b0;
-        ld_c = 1'b0;
-        ld_x = 1'b0;
-        ld_r = 1'b0;
-        alu_select_a = 2'b0;
-        alu_select_b = 2'b0;
-        alu_op       = 1'b0;
-        result_valid = 1'b0; 
+        game_over = 1'b0;
+        good_whack = 1'b0;
+
 
         case (current_state)
             S_LOAD_A: begin
