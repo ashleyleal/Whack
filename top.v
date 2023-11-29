@@ -1,51 +1,90 @@
+// Protect against undefined nets
+`default_nettype none
+
 // Top Level Module (Main)
 
-module Top (CLOCK_50, KEY, SW, GPIO, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
-        PS2_CLK, PS2_DAT, 
-        VGA_X, VGA_Y, VGA_COLOR, plot);
+module Top (CLOCK_50, KEY, SW, LEDR, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N, VGA_R, VGA_G, VGA_B);
     input  wire         CLOCK_50;   // DE-series 50 MHz clock signal
     input  wire [ 3: 0] KEY;        // DE-series pushbuttons
     input  wire [ 9: 0] SW;         // DE-series switches
-    inout  wire [31: 0] GPIO;       // DE-series 40-pin header
-    output wire [ 6: 0] HEX0;       // DE-series HEX displays
-    output wire [ 6: 0] HEX1;
-    output wire [ 6: 0] HEX2;
-    output wire [ 6: 0] HEX3;
-    output wire [ 6: 0] HEX4;
-    output wire [ 6: 0] HEX5;
     output wire [ 9: 0] LEDR;       // DE-series LEDs
+	
+	output			VGA_CLK;   				//	VGA Clock
+	output			VGA_HS;					//	VGA H_SYNC
+	output			VGA_VS;					//	VGA V_SYNC
+	output			VGA_BLANK_N;			//	VGA BLANK
+	output			VGA_SYNC_N;				//	VGA SYNC
+	output	[7:0]	VGA_R;   				//	VGA Red[7:0] 
+	output	[7:0]	VGA_G;	 				//	VGA Green[7:0]
+	output	[7:0]	VGA_B;					//	VGA Blue[7:0]
 
-    inout  wire         PS2_CLK;    // PS/2 Clock
-    inout  wire         PS2_DAT;    // PS/2 Data
+    reg [11:0] colour;
+    wire [7:0] bgx, bgy;
+	reg [7:0] x, y;
+	reg writeEn;
+	wire resetn;
+	assign resetn = KEY[0]; // reset everything switch
 
-    output wire [ 7: 0] VGA_X;      // "VGA" column
-    output wire [ 6: 0] VGA_Y;      // "VGA" row
-    output wire [ 2: 0] VGA_COLOR;  // "VGA pixel" colour (0-7)
-    output wire         plot;       // "Pixel" is drawn when this is pulsed
+    wire [11:0] startColour;
+    wire [11:0] gameColour;
 
+    reg [11:0] address;
+    wire [11:0] outAddress; 
 
-    // assign GPIO      = 32'hZZZZZZZZ;
+    // Signals from FSM
+    wire isStart; isGame, isGameEnd;
 
-    // assign HEX0      = 7'h40;
-    // assign HEX1      = 7'h47;
-    // assign HEX2      = 7'h47;
-    // assign HEX3      = 7'h06;
-    // assign HEX4      = 7'h09;
-    // assign HEX5      = 7'h7F;
+    // Instantiate memory modules to display frames
+    start startBG(.address(address), .clock(CLOCK_50), .q(startColour));
+    game gameBG(.address(address), .clock(CLOCK_50), .q(gameColour));
 
-    // assign LEDR      = 10'h155;
+    vga_adapter VGA(
+			.resetn(resetn),
+			.clock(CLOCK_50),
+			.colour(colour),
+			.x(x),
+			.y(y),
+			.plot(writeEn),
+			/* Signals for the DAC to drive the monitor. */
+			.VGA_R(VGA_R),
+			.VGA_G(VGA_G),
+			.VGA_B(VGA_B),
+			.VGA_HS(VGA_HS),
+			.VGA_VS(VGA_VS),
+			.VGA_BLANK(VGA_BLANK_N),
+			.VGA_SYNC(VGA_SYNC_N),
+			.VGA_CLK(VGA_CLK));
+		defparam VGA.RESOLUTION = "160x120";
+		defparam VGA.MONOCHROME = "FALSE";
+		defparam VGA.BITS_PER_COLOUR_CHANNEL = 4;
+		defparam VGA.BACKGROUND_IMAGE = "black.mif";
 
-    // assign PS2_CLK   = 1'bZ;
-    // assign PS2_DAT   = 1'bZ;
-
-    // assign VGA_X     = {4'h0, SW[3:0]};
-    // assign VGA_Y     = {3'h0, SW[7:4]};
-    // assign VGA_COLOR = KEY[3:1];
-    // assign plot      = KEY[0];
-
-    GameFSM MainFSM(.clk(CLOCK_50), .reset(KEY[0]), .input_signal(KEY[1]), .control_signal(), .hit_miss(), .timer_signal(), .output_start(LEDR[0]), .output_game(LEDR[1]), .output_game_end(LEDR[2])); 
+    // Instantiate FSM
+    GameFSM MainFSM(.clk(CLOCK_50), .reset(resetn), .input_signal(KEY[1]), .control_signal(), .hit_miss(), .timer_signal(), .output_start(isStart), .output_game(isGame), .output_game_end(isGameEnd)); 
     // Control signal will be from the datapath module (logic)
     // Hit_miss signal will be from the datapath module (logic)
     // Timer signal will be from a timer module, need rate divider and clock crossing
 
+    always @(*) begin
+        if (isStart) begin
+            colour <= startColour;
+            x <= bgx
+            y <= bgy
+            address <= outAddress;
+        end
+        else if (isGame) begin
+            colour <= gameColour;
+            x <= bgx
+            y <bgy
+            address <= outAddress;
+        end 
+        else begin
+            address <= 0;
+            x <= 0;
+            y < 0;
+        end
+        
+    end
+
 endmodule
+
