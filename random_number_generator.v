@@ -1,10 +1,11 @@
 // Generates a psuedorandom two bit binary number to choose a "mole" using LFSR (Linear Feedback Shift Register)
+// is kind of stupid
 
 module RandomNumberGenerator(
   input wire clock,
   input wire Reset,
   input wire [1:0] seed, // Input for seed value, use SW
-  output reg [1:0] random_num
+  output reg [1:0] random_num // random number output is 2 bits
 );
 
   reg [1:0] lfsr;
