@@ -43,7 +43,9 @@ module Top (CLOCK_50, KEY, SW, GPIO, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR,
     // assign VGA_COLOR = KEY[3:1];
     // assign plot      = KEY[0];
 
-
-
+    GameFSM MainFSM(.clk(CLOCK_50), .reset(KEY[0]), .input_signal(KEY[1]), .control_signal(), .hit_miss(), .timer_signal(), .output_start(LEDR[0]), .output_game(LEDR[1]), .output_game_end(LEDR[2])); 
+    // Control signal will be from the datapath module (logic)
+    // Hit_miss signal will be from the datapath module (logic)
+    // Timer signal will be from a timer module, need rate divider and clock crossing
 
 endmodule
