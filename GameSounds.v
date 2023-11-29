@@ -13,4 +13,6 @@ module GameSounds (
         default: output = 1'b0;
     endcase
 
+    DE1_SoC_Audio_Example()
+
 endmodule

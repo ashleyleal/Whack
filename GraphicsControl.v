@@ -1,4 +1,5 @@
 // GraphicsControl module for VGA display
+// FSM strictly for controlling frame on screen
 
 
 module GraphicsControl (
@@ -13,7 +14,8 @@ module GraphicsControl (
     oY,
     oColour,
     oPlot,
-    oDone
+    oDone,
+    CurrentState
 );
 
 // 
@@ -24,12 +26,16 @@ module GraphicsControl (
   input wire [2:0] iColour;
   input wire [6:0] iXY_Coord;
   input wire iClock;
+
+  input wire [2:0] CurrentState; // get state signal from GameFSM
+
   output wire [7:0] oX;  // VGA pixel coordinates
   output wire [6:0] oY;
 
   output wire [2:0] oColour;  // VGA pixel colour (0-7)
   output wire oPlot;  // Pixel draw enable
   output wire oDone;  // goes high when finished drawing frame
+
 
   wire ld_x, ld_y, ld_c, black_en, finish, blackDone;
 
@@ -64,11 +70,30 @@ module GraphicsControl (
       .finish(finish),
       .blackDone(blackDone)
   );
-
-
-
-
 endmodule  // part2
+
+// Set up mole vga state to correspond to random value generated from datapath
+module setSelectedMole (
+
+  input Clock;
+  input enableSelect, // 
+  input wire [1:0] selectedMole; // from datapath random num generator
+  output wire [2:0] moleState; // output to VGA display
+
+  always@(posedge Clock) 
+  begin
+    if (enableSelect) begin
+      case (selectedMole)
+        2'b000: moleState = 3'b010;
+        2'b001: moleState = 3'b011;
+        2'b010: moleState = 3'b100;
+        2'b011: moleState = 3'b101;
+        default: moleState = 3'b010;
+      endcase
+    end
+  end
+)
+endmodule
 
 // contains states for each game frame and animations; 
 module control (
@@ -88,24 +113,18 @@ module control (
 
   reg [2:0] current_state, next_state;
 
-  localparam  S_LOAD_x        = 3'd0,
-              S_LOAD_x_wait   = 3'd1,
-              S_LOAD_y        = 3'd2,
-              S_LOAD_y_wait   = 3'd3,
-              Drawing		   = 3'd4,
-              S_Black         = 3'd5, 
-              Done            = 3'd6;
+  localparam  Background_Frame = 3'b000, // Contains only the background with no moles, and has the holes
+              Start_Frame = 3'b001, // Contains the start screen with prompt to press start
+              Mole_Position1_Frame = 3'b010, // Contains the mole in top left hole
+              Mole_Position2_Frame = 3'b011, // Contains the mole in top right hole
+              Mole_Position3_Frame = 3'b100, // Contains the mole in bottom left hole
+              Mole_Position4_Frame = 3'b101, // Contains the mole in bottom right hole
+              GameOver_Frame = 3'b110,; // Contains the game over screen
 
   // Next state logic aka our state table
   always @(*) begin : state_table
     case (current_state)
-      S_LOAD_x: next_state = black ? S_Black : (ld ? S_LOAD_x_wait : S_LOAD_x);
-      S_LOAD_x_wait: next_state = black ? S_Black : (ld ? S_LOAD_x_wait : S_LOAD_y);
-      S_LOAD_y: next_state = black ? S_Black : (draw ? S_LOAD_y_wait : S_LOAD_y);
-      S_LOAD_y_wait: next_state = black ? S_Black : (draw ? S_LOAD_y_wait : Drawing);
-      Drawing: next_state = black ? S_Black : (finish ? Done : Drawing);
-      Done: next_state = black ? S_Black : (ld ? S_LOAD_x : Done);
-      S_Black: next_state = blackDone ? Done : S_Black;
+    
     endcase
   end
 
