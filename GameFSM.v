@@ -35,13 +35,14 @@ begin: state_table
   case (current_state)
     Start: next_state = input_signal ? Start_To_Game : Start;
     Start_To_Game: next_state = control_signal ? Game : Start_To_Game;
-    Game:
-      timer_signal ? next_state = Game_To_GameEnd: Game; // Always check for timer signal first, if it's high while in game state, go to game end state
-      case (hit_miss)
-        2'b01: next_state = Game_Hit;
-        2'b10: next_state = Game_Miss;
-        default: next_state = Game;
-      endcase
+    
+	 Game:
+      // Always check for timer signal first, if it's high while in game state, go to game end state
+		if (timer_signal) next_state = Game_To_GameEnd;
+		else if (hit_miss == 2'b01) next_state = Game_Hit;
+		else if (hit_miss == 2'b10) next_state = Game_Miss;
+		else next_state = Game;
+		
     Game_Hit: next_state = control_signal ? Game : Game_Hit;
     Game_Miss: next_state = control_signal ? Game : Game_Miss;
     Game_To_GameEnd: next_state = control_signal ? GameEnd : Game_To_GameEnd;
