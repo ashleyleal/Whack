@@ -1,4 +1,5 @@
 // HexDecoder and DisplayCounter for Physical Score Counter
+// Need BCD in order to display two digit numbers in decimal on the 7-segment display**
 
 module DisplayCounter (
     input Clock,

@@ -1,5 +1,6 @@
 // Generates a psuedorandom two bit binary number to choose a "mole" using LFSR (Linear Feedback Shift Register)
-// is kind of stupid
+// Needs rate divider (clock control) so that the random number is generated at a reasonable rate and not instantaneously
+// At the moment, the random number is generated every clock cycle, which is too fast
 
 module RandomNumberGenerator(
   input wire clock,

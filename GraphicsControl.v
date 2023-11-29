@@ -70,7 +70,7 @@ module GraphicsControl (
 
 endmodule  // part2
 
-// contains states for each game frame; 
+// contains states for each game frame and animations; 
 module control (
     input clk,
     input Reset,
