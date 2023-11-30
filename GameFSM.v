@@ -12,7 +12,8 @@ module GameFSM (
   
   output reg output_start, // Output signal for start state
   output reg output_game, // Output signal for game state
-  output reg output_game_end // Output signal for game end state  
+  output reg output_game_end, // Output signal for game end state
+	output reg [2:0] output_state
 );
 
 // Enumerated type for FSM states
@@ -62,9 +63,7 @@ always @(posedge clk or posedge reset)
 // Output logic
 always@(posedge clk)
 begin: state_FFS
-  output_start = (current_state == Start);
-  output_game = (current_state == Game);
-  output_game_end = (current_state == GameEnd);
+	output_state = current_state;
 end // state_FFS
 
 endmodule
