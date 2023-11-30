@@ -27,6 +27,9 @@ module Top (CLOCK_50, KEY, SW, LEDR, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_S
 	assign resetn = KEY[0]; // reset everything switch
 	
 	wire startEnable;
+	wire draw;
+	
+	assign draw = 1'b1;
 
     wire [11:0] startColour;
     wire [11:0] gameColour;
