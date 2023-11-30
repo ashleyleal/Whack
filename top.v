@@ -34,7 +34,11 @@ module Top (CLOCK_50, KEY, SW, LEDR, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_S
     // Signals from FSM
     wire isStart; isGame, isGameEnd;
 
-    // Instantiate memory modules to display frames
+    // Signals from datapath
+    wire [1:0] hit_miss; 
+    wire control_signal, timer_signal;
+
+    // Instantiate memory modules to display frames (need to update)
     start startBG(.address(address), .clock(CLOCK_50), .q(startColour));
     game gameBG(.address(address), .clock(CLOCK_50), .q(gameColour));
 
@@ -60,7 +64,7 @@ module Top (CLOCK_50, KEY, SW, LEDR, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_S
 		defparam VGA.BACKGROUND_IMAGE = "black.mif";
 
     // Instantiate FSM
-    GameFSM MainFSM(.clk(CLOCK_50), .reset(resetn), .input_signal(KEY[1]), .control_signal(), .hit_miss(), .timer_signal(), .output_start(isStart), .output_game(isGame), .output_game_end(isGameEnd)); 
+    GameFSM MainFSM(.clk(CLOCK_50), .reset(resetn), .input_signal(KEY[1]), .control_signal(control_signal), .hit_miss(hit_miss), .timer_signal(timer_signal), .output_start(isStart), .output_game(isGame), .output_game_end(isGameEnd)); 
     // Control signal will be from the datapath module (logic)
     // Hit_miss signal will be from the datapath module (logic)
     // Timer signal will be from a timer module, need rate divider and clock crossing
@@ -75,7 +79,7 @@ module Top (CLOCK_50, KEY, SW, LEDR, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_S
         else if (isGame) begin
             colour <= gameColour;
             x <= bgx
-            y <bgy
+            y <= bgy
             address <= outAddress;
         end 
         else begin
