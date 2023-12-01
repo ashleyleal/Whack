@@ -35,7 +35,6 @@ module drawImage
 	// So far, this module is just a test to see if the memory block works and the VGA prints out the image
 	// Need to add conditionals to print out image based on state either here or in FSM
 	always @(posedge iClock) begin
-	
 		if (ypos < 10'd120 && xpos == 10'd159) begin
 			ypos <= ypos + 1'b1;
 			xpos <= 0;

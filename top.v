@@ -88,7 +88,7 @@ module Top (CLOCK_50, KEY, SW, LEDR, VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_S
     // Hit_miss signal will be from the datapath module (logic)
     // Timer signal will be from a timer module, need rate divider and clock crossing
 	 
-	 module drawImage (.clock(CLOCK_50), .state(outputState), .done(done), .address(outAddress), .bgposx(bgx), .bgposy(bgy), .draw(draw));
+	 module drawImage ();
 
     always @(*) begin
         if (isStart) begin
