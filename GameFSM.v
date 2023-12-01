@@ -6,20 +6,19 @@ module GameFSM (
   input input_signal, // input signal from start button
   input control_signal, // input signal from datapath
   input timer_signal, // input signal from datapath
-  input delay_done, // input signal from delay module
   output reg [3:0] state // output signal to other modules
 );
 
 wire [1:0] random_num; // random number from RNG module
-wire [1:0] seed; // seed value for RNG module
+reg [1:0] seed; // seed value for RNG module
 
-wire control, input, timer, delay; // enable signals for FSM
+reg control, inputS, timer; // enable signals for FSM
 
 initial begin
   control = 1'b0;
-  input = 1'b0;
+  inputS = 1'b0;
   timer = 1'b0;
-  delay = 1'b0;
+  seed = 2'b00;
 end
 
 RandomNumberGenerator RNG(.clock(clk), .Reset(reset), .seed(seed), .random_num(random_num));
@@ -42,10 +41,10 @@ always@(*)
 begin: state_table
   case (current_state)
 
-    Start: next_state = input ? Game : Start;
+    Start: next_state = inputS ? Game : Start;
     
     Game: 
-      if (timer_signal) begin // timer takes priority over control signal
+      if (timer) begin // timer takes priority over control signal
         next_state = GameOver;
       end
       else if (control) begin
@@ -66,32 +65,30 @@ begin: state_table
     Mole3: next_state = control ? Game : Mole3; 
     Mole4: next_state = control ? Game : Mole4; 
 
-    GameOver: next_state = input ? Start : GameOver;
+    GameOver: next_state = inputS ? Start : GameOver;
         
     default: next_state = Start;
   endcase
 end // state_table
 
 // Initial state assignment
-always @(posedge clk or posedge reset)
-  if (reset)
+always @(posedge clk or posedge reset) begin
+  if (reset) begin
     current_state <= Start; // if reset, return to Start state
-    control = 1'b0;
-    input = 1'b0;
-    timer = 1'b0;
-    delay = 1'b0;
+  end
   else
     current_state <= next_state;
+end
+
 
 // Output logic
 always@(posedge clk)
 begin: state_FFS
-	state <= current_state;
-  control <= control_signal;
-  input <= input_signal;
-  timer <= timer_signal;
-  delay <= delay_done;
-  seed <= random_num;
+    state <= current_state;
+    control <= control_signal;
+    inputS <= input_signal;
+    timer <= timer_signal;
+    seed <= random_num;
 end // state_FFS
 
 endmodule
