@@ -1,59 +1,62 @@
-module drawImage (clock, state, done, address, bgposx, bgposy, draw);
+module drawImage 
+	(iResetn, iClock, iState, oX, oY, oColour, oPlot);
 
-	input clock, draw;
-	input [2:0] state;
-	
-	output reg [14:0] address;
-	reg [7:0] bgx, bgy;
-	
-	output reg [7:0] bgposx, bgposy;
-	
+	parameter X_SCREEN_PIXELS = 8'd160;
+	parameter Y_SCREEN_PIXELS = 8'd120;
+
+	input wire iResetn, iClock;
+	output wire [7:0] oX;
+	output wire [6:0] oY;
+
+	output wire [2:0] oColour;
+	output wire oPlot;
+
+	reg [14:0] address;
+	wire [2:0] color_out;
+	assign oPlot = 1'b1;
+
+	reg [7:0] xpos, ypos;
+	reg [7:0] xbg, ybg;
+	reg done;
+
 	initial address = 0;
 	initial done = 0;
+	initial xpos = 8'b0;
+	initial ypos = 8'b0;
 	
-	localparam  
-	Start = 3'b000, 
-	Start_To_Game = 3'b001, 
-	Game = 3'b010,
-	Game_To_GameEnd = 3'b011,
-	GameEnd = 3'b100,
-	// Game substates
-	Game_Hit = 3'b101,
-	Game_Miss = 3'b110;
+	assign oX = xbg;
+	assign oY = ybg;
 	
-	always@(posedge clock) begin
-		
-		if (done) begin
-			done <= 0;
+	// instantiate memory rom block here to test; double check rom params
+	whackstartscreen testStart(.address(address), .clock(iClock), .q(color_out));
+
+	assign oColour = color_out;
+	
+	// So far, this module is just a test to see if the memory block works and the VGA prints out the image
+	// Need to add conditionals to print out image based on state either here or in FSM
+	always @(posedge iClock) begin
+	
+		if (ypos < 10'd120 && xpos == 10'd159) begin
+			ypos <= ypos + 1'b1;
+			xpos <= 0;
 		end
-	
-		else begin
-		
-			if (bgy < 10'd120 && bgx == 10'd159) begin
-				bgy <= bgy + 1;
-				bgx <= 0;
-			end
-			
-			else if (bgx < 10'd160) begin
-				bgx <= bgx + 1;
-			end
-			
-			if (bgy != 10d'121 && bgx != 10'd160 && !done) begin
-				address <= address + 1;
-				bgposx <= bgx;
-				bgposy <= bgy;
-			end
-			
-			if ((bgy == 10d'120) && (bgx == 10'd0)) begin
-				done <= 1;
-				address <= 0;
-				bgy <= 0;
-				bgx <= 0;
-			end
-			
+		else if (xpos < 10'd160) begin
+			xpos <= xpos + 1'b1;
+		end
+
+		if (ypos != 10'd120 && xpos != 10'd160 && !done) begin
+			address <= address + 1'b1;
+			xbg <= xpos;
+			ybg <= ypos;
+		end
+
+		if (ypos == 10'd119 && xpos == 10'd159) begin
+			done <= 1'b1;
+			address <= 0;
+			ypos <= 0;
+			xpos <= 0;
 		end
 	end
-	
 
 	
 endmodule
