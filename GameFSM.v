@@ -83,7 +83,6 @@ always @(posedge clk or posedge reset) begin
     current_state <= next_state;
 end
 
-
 // Output logic
 always@(posedge clk)
 begin: state_FFS
@@ -111,12 +110,15 @@ module RandomNumberGenerator(
     end else begin
       // LFSR feedback polynomial: x^2 + x + 1
       lfsr[0] <= lfsr[0] ^ lfsr[1];
-      lfsr[1] <= lfsr[0] ^ lfsr[1];
+      lfsr[1] <= lfsr[0] ^ ~lfsr[1];
     end
   end
 
   always @(posedge clock) begin
     random_num <= lfsr;
+    if (random_num == lfsr) begin
+      random_num <= lfsr + 1'b1;
+    end
   end
 
 endmodule
