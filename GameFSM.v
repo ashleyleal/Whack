@@ -1,3 +1,6 @@
+// Known Problems:
+// 1. Need to account for when multiple control signals are high at the same time, otherwise the FSM breaks
+
 // FSM module for game state control logic
 module GameFSM (
 
@@ -21,7 +24,7 @@ initial begin
   seed = 2'b00;
 end
 
-RandomNumberGenerator RNG(.clock(clk), .Reset(reset), .seed(seed), .random_num(random_num));
+RandomNumberGenerator RNG(.clock(clk), .Reset(control_signal), .seed(seed), .random_num(random_num));
 
 // Enumerated type for FSM states
   localparam  
