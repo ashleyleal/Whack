@@ -1,4 +1,4 @@
-module Top (CLOCK_50, KEY, SW, LEDR, 		
+module top (CLOCK_50, KEY, SW, LEDR, 		
     VGA_CLK,   						//	VGA Clock
 		VGA_HS,							//	VGA H_SYNC
 		VGA_VS,							//	VGA V_SYNC
@@ -6,7 +6,7 @@ module Top (CLOCK_50, KEY, SW, LEDR,
 		VGA_SYNC_N,						//	VGA SYNC
 		VGA_R,   						//	VGA Red[9:0]
 		VGA_G,	 						//	VGA Green[9:0]
-		VGA_B)   						//	VGA Blue[9:0]);
+		VGA_B);   						//	VGA Blue[9:0]);
     
     input  wire         CLOCK_50;   // DE-series 50 MHz clock signal
     input  wire [ 3: 0] KEY;        // DE-series pushbuttons
@@ -24,7 +24,7 @@ module Top (CLOCK_50, KEY, SW, LEDR,
     // Wires for the draw module
     wire         [ 7: 0] x;
     wire         [ 6: 0] y;
-    reg          plot;
+    wire          plot;
     
     wire         [ 2: 0] color;
     wire        reset;
@@ -34,7 +34,7 @@ module Top (CLOCK_50, KEY, SW, LEDR,
     wire        [ 2: 0] state;
 
     assign reset = SW[0];
-    assign plot      = 1'b1;
+//    assign plot  = 1'b1;
 
     // states
     localparam
@@ -78,74 +78,19 @@ module Top (CLOCK_50, KEY, SW, LEDR,
 
 // show state signals on led for now
 assign LEDR = outputLED;
+assign LEDR = outputLED;
 always @(posedge CLOCK_50) begin
-    if (state == Start) begin
-      outputLED[0] <= 1'b1;
-      outputLED[1] <= 1'b0;
-      outputLED[2] <= 1'b0;
-      outputLED[3] <= 1'b0;
-      outputLED[4] <= 1'b0;
-      outputLED[5] <= 1'b0;
-      outputLED[6] <= 1'b0;
-    end
-    else if (state == Game) begin
-      outputLED[0] <= 1'b0;
-      outputLED[1] <= 1'b1;
-      outputLED[2] <= 1'b0;
-      outputLED[3] <= 1'b0;
-      outputLED[4] <= 1'b0;
-      outputLED[5] <= 1'b0;
-      outputLED[6] <= 1'b0;
-    end
-    else if (state == Mole1) begin
-      outputLED[0] <= 1'b0;
-      outputLED[1] <= 1'b0;
-      outputLED[2] <= 1'b1;
-      outputLED[3] <= 1'b0;
-      outputLED[4] <= 1'b0;
-      outputLED[5] <= 1'b0;
-      outputLED[6] <= 1'b0;
-    end
-    else if (state == Mole2) begin
-      outputLED[0] <= 1'b0;
-      outputLED[1] <= 1'b0;
-      outputLED[2] <= 1'b0;
-      outputLED[3] <= 1'b1;
-      outputLED[4] <= 1'b0;
-      outputLED[5] <= 1'b0;
-      outputLED[6] <= 1'b0;
-    end
-    else if (state == Mole3) begin
-      outputLED[0] <= 1'b0;
-      outputLED[1] <= 1'b0;
-      outputLED[2] <= 1'b0;
-      outputLED[3] <= 1'b0;
-      outputLED[4] <= 1'b1;
-      outputLED[5] <= 1'b0;
-      outputLED[6] <= 1'b0;
-    end
-    else if (state == Mole4) begin
-      outputLED[0] <= 1'b0;
-      outputLED[1] <= 1'b0;
-      outputLED[2] <= 1'b0;
-      outputLED[3] <= 1'b0;
-      outputLED[4] <= 1'b0;
-      outputLED[5] <= 1'b1;
-      outputLED[6] <= 1'b0;
-    end
-    else if (state == GameOver) begin
-      outputLED[0] <= 1'b0;
-      outputLED[1] <= 1'b0;
-      outputLED[2] <= 1'b0;
-      outputLED[3] <= 1'b0;
-      outputLED[4] <= 1'b0;
-      outputLED[5] <= 1'b0;
-      outputLED[6] <= 1'b1;
-    end
-    // else begin
-    //   outputLED <= 0;
-    // end
-  end
+    outputLED <= 7'b0; // Reset all LEDs
+    case (state)
+        Start:      outputLED[0] <= 1'b1;
+        Game:       outputLED[1] <= 1'b1;
+        Mole1:      outputLED[2] <= 1'b1;
+        Mole2:      outputLED[3] <= 1'b1;
+        Mole3:      outputLED[4] <= 1'b1;
+        Mole4:      outputLED[5] <= 1'b1;
+        GameOver:   outputLED[6] <= 1'b1;
+    endcase
+end
 
 endmodule
 
