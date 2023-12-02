@@ -24,8 +24,9 @@ module Top (CLOCK_50, KEY, SW, LEDR,
     // Wires for the draw module
     wire         [ 7: 0] x;
     wire         [ 6: 0] y;
+    reg          plot;
+    
     wire         [ 2: 0] color;
-
     wire        reset;
     reg [6:0] outputLED; // for testing signals
 
@@ -33,6 +34,7 @@ module Top (CLOCK_50, KEY, SW, LEDR,
     wire        [ 2: 0] state;
 
     assign reset = SW[0];
+    assign plot      = 1'b1;
 
     // states
     localparam
@@ -70,11 +72,9 @@ module Top (CLOCK_50, KEY, SW, LEDR,
 		defparam VGA.BACKGROUND_IMAGE = "whackstartsceen.mif";
 
     // Using DESIM VGA Adapter, need to change to one for board later
-
-    assign VGA_X     = x;
-    assign VGA_Y     = y;
-    assign VGA_COLOR = color;
-    assign plot      = 1'b1;
+    // assign VGA_X     = x;
+    // assign VGA_Y     = y;
+    // assign VGA_COLOR = color;
 
 // show state signals on led for now
 assign LEDR = outputLED;
