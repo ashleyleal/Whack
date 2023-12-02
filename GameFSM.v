@@ -34,7 +34,7 @@ RandomNumberGenerator RNG(.clock(clk), .Reset(reset), .seed(seed), .random_num(r
   GameOver = 3'b110;
 
 // FSM state register
-reg [2:0] current_state, next_state;
+reg [3:0] current_state, next_state;
 
 // Next state logic
 always@(*)
@@ -90,5 +90,30 @@ begin: state_FFS
     timer <= timer_signal;
     seed <= random_num;
 end // state_FFS
+
+endmodule
+
+module RandomNumberGenerator(
+  input wire clock,
+  input wire Reset,
+  input wire [1:0] seed, // Input for seed value, use SW
+  output reg [1:0] random_num // random number output is 2 bits
+);
+
+  reg [1:0] lfsr;
+
+  always @(posedge clock or posedge Reset) begin
+    if (Reset) begin
+      lfsr <= seed; // Initialize with the seed value, manually change
+    end else begin
+      // LFSR feedback polynomial: x^2 + x + 1
+      lfsr[0] <= lfsr[0] ^ lfsr[1];
+      lfsr[1] <= lfsr[0] ^ lfsr[1];
+    end
+  end
+
+  always @(posedge clock) begin
+    random_num <= lfsr;
+  end
 
 endmodule
