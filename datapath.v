@@ -131,13 +131,13 @@ module datapath(
 				3'b110:
 					if (counter <= 27'd50000000) begin
 						timer_doneTime <= 1d'1
+						address <= address + 1;
 						counter <= 27'd0;
 					end
 					else begin
 						timer_doneTime <= 1'd0;
 						counter <= counter + 1;
 					end
-					address <= address + 1;
 		  end case
 	   end 
 		  if (timer_signal) begin
