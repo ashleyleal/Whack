@@ -15,6 +15,12 @@ module GameTimer #(
   wire [3:0] case2;
   wire [3:0] case3;
 
+  initial begin
+	case1 = 4'd0;
+	case2 = 4'd0;
+	case3 = 4'd0;
+  end
+	
   if (game_start == 1'd1) begin 
 	  // Instantiate Rate Divider
 	  RateDivider #(
