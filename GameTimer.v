@@ -1,7 +1,7 @@
 // Top Level Module
 module GameTimer #(
    input Clck,
-	input enable, //timer_done
+	input enable, //game_done
 	input reset,
 	input game_start, //game started
 	output [6:0] HEX0,
