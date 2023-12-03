@@ -32,7 +32,7 @@ module PointCounter (
 	.display1(HEX5)		 
 	);
 
-end module
+endmodule
         
 module DisplayCounter (
     input Clock,

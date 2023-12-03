@@ -42,7 +42,7 @@ module datapath(
 				wren <= 1'b0;
 				address <=5'd0;
 		  end
-	  else
+	  else begin
 		  
 		  case (state)
 				3'b000:
@@ -135,7 +135,7 @@ module datapath(
 						timer_doneGame <= 1'b0;
 						counter <= counter + 1;
 					end
-		  end case
+		  endcase
 	   end 
 		  if (timer_signal) begin
 				timer_done <= 1;

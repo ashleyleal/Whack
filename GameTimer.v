@@ -45,7 +45,7 @@ module GameTimer #(
 		// Hex Decoder
 		HexDecoder HexInst (
 			.hex(case1), .hex1(case2), .hex2(case3) .display(HEX0), 
-			.display1(HEX1), .display2(HEX2))
+			.display1(HEX1), .display2(HEX2)
 		 );
 
 endmodule

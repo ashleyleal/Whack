@@ -25,6 +25,10 @@ module top (
     FPGA_I2C_SCLK
 );
 
+/*****************************************************************************
+ *                             Port Declarations                             *
+ *****************************************************************************/
+
   // FPGA Ports
   input wire CLOCK_50;  // DE-series 50 MHz clock signal
   input wire [3:0] KEY;  // DE-series pushbuttons
@@ -51,6 +55,10 @@ module top (
   output AUD_XCK;
   output AUD_DACDAT;
   output FPGA_I2C_SCLK;
+
+/*****************************************************************************
+ *                 Internal Wires and Registers Declarations                 *
+ *****************************************************************************/
 
   // Internal Wires for the audio controller
   wire        audio_in_available;
@@ -88,7 +96,7 @@ module top (
   assign audio_sw[1] = miss_sound;
   assign audio_sw[2] = 1'b0;
   assign audio_sw[3] = 1'b0;
-  
+
   assign reset = SW[0];
   //    assign plot  = 1'b1;
 
@@ -101,8 +109,10 @@ module top (
     Mole3 = 3'b100,
     Mole4 = 3'b101,
     GameOver = 3'b110;
+/*****************************************************************************
+ *                              Internal Modules                             *
+ *****************************************************************************/
 
-  // Module instantiations
   GameFSM gameFSM (
       .clk(CLOCK_50),
       .reset(reset),
@@ -183,11 +193,6 @@ module top (
       .CLOCK_50     (CLOCK_50),
       .reset        (reset)
   );
-
-  // Using DESIM VGA Adapter, need to change to one for board later
-  // assign VGA_X     = x;
-  // assign VGA_Y     = y;
-  // assign VGA_COLOR = color;
 
   /* Audio Start*/
   always @(posedge CLOCK_50)
