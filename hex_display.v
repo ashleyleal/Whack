@@ -4,7 +4,7 @@
 // top level module
 module PointCounter ( 
     input Clck,
-	input reset,
+    input reset,
     input [7:0] Data_In, // from game memory module
     output [6:0] HEX4,
     output [6:0] HEX5,
@@ -19,44 +19,37 @@ module PointCounter (
     
     // Instantiate Display Counter
 	  DisplayCounter DCInst (
-			.Clock(Clck),
-			.reset(reset),
+	    .Clock(Clck),
+	    .reset(reset),
+	    .data(Data_In),
             .case1(case4),
-            .case2(case5),
+            .case2(case5)
 	  );
 
-		// Hex Decoder
-		HexDecoder HexInst (
-            .hex(case4), .hex1(case5), .display(HEX4), 
-            .display1(HEX5))
-		 );
+	// Hex Decoder
+	HexPoint HexInst (
+	.hex(case4), .hex1(case5), .display(HEX4), 
+	.display1(HEX5)		 
+	);
 
 end module
         
 module DisplayCounter (
     input Clock,
     input Reset,
-    output reg [3;0] case4,
+    input [7:0] data,
+	output reg [3:0] case4,
     output reg [3:0] case5,
 );
     always @(posedge Clock)
     begin
-	  if (reset || enable) begin
+	  if (reset) begin
 		case4 <= 4'd0;
 		case5 <= 4'd0;
 	  end
 	  else begin
-	      if (case4 >= 4'd9) begin
-		case4 <= 4'd0;
-		case5 <= case5 + 1;
-	      end
-	      else if (case4 < 4'd9) begin
-		case4 <= case4 + 1;
-	      end
-			
-	      if (case5 > 4'd9) begin
-		case5 <= 4'd0;
-	      end
+		case4 <= data % 10;
+		case5 <= data - (data % 10);
 	  end
     end
 endmodule
@@ -71,31 +64,31 @@ module HexPoint(
 always @(*)
     begin
         case(hex4)
-        4'd0: display = 7'b1000000; // 0
-        4'd1: display = 7'b1111001; // 1
-        4'd2: display = 7'b0100100; // 2
-        4'd3: display = 7'b0110000; // 3
-        4'd4: display = 7'b0011001; // 4
-        4'd5: display = 7'b0010010; // 5
-        4'd6: display = 7'b0000010; // 6
-        4'd7: display = 7'b1111000; // 7
-        4'd8: display = 7'b0000000; // 8
-        4'd9: display = 7'b0010000; // 9
-        default: display = 7'b1111111; // Display nothing
+        7'd0: display4 = 7'b1000000; // 0
+        7'd1: display4 = 7'b1111001; // 1
+        7'd2: display4 = 7'b0100100; // 2
+        7'd3: display4 = 7'b0110000; // 3
+        7'd4: display4 = 7'b0011001; // 4
+        7'd5: display4 = 7'b0010010; // 5
+        7'd6: display4 = 7'b0000010; // 6
+        7'd7: display4 = 7'b1111000; // 7
+        7'd8: display4 = 7'b0000000; // 8
+        7'd9: display4 = 7'b0010000; // 9
+        default: display4 = 7'b1111111; // Display nothing
 		endcase
 		
         case(hex5)
-        4'd0: display = 7'b1000000; // 0
-        4'd1: display = 7'b1111001; // 1
-        4'd2: display = 7'b0100100; // 2
-        4'd3: display = 7'b0110000; // 3
-        4'd4: display = 7'b0011001; // 4
-        4'd5: display = 7'b0010010; // 5
-        4'd6: display = 7'b0000010; // 6
-        4'd7: display = 7'b1111000; // 7
-        4'd8: display = 7'b0000000; // 8
-        4'd9: display = 7'b0010000; // 9
-        default: display1 = 7'b1111111; // Display nothing
+        7'd0: display5 = 7'b1000000; // 0
+        7'd1: display5 = 7'b1111001; // 1
+        7'd2: display5 = 7'b0100100; // 2
+        7'd3: display5 = 7'b0110000; // 3
+        7'd4: display5 = 7'b0011001; // 4
+        7'd5: display5 = 7'b0010010; // 5
+        7'd6: display5 = 7'b0000010; // 6
+        7'd7: display5 = 7'b1111000; // 7
+        7'd8: display5 = 7'b0000000; // 8
+        7'd9: display5 = 7'b0010000; // 9
+        default: display5 = 7'b1111111; // Display nothing
 		endcase
     end
 endmodule
