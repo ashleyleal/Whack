@@ -21,11 +21,11 @@ module GameTimer #(
 	case3 = 4'd0;
   end
 	
-  if (game_start == 1'd1) begin 
 	  // Instantiate Rate Divider
 	  RateDivider #(
 			.ClockIn(Clck),
 			.Counter  (CounterValue),
+		  	.Game (game_start),
 			.Enable (time_enable)
 	  );
 
@@ -35,6 +35,7 @@ module GameTimer #(
 			.enable(enable),
 			.time_enable(time_enable),
 			.reset(reset),
+		  	.Game(game_start),
 			.case1(case1),
 			.case2(case2),
 			.case3(case3),
@@ -46,20 +47,20 @@ module GameTimer #(
 			.hex(case1), .hex1(case2), .hex2(case3) .display(HEX0), 
 			.display1(HEX1), .display2(HEX2))
 		 );
-	 end
 
 endmodule
 
 // Rate Divider Module takes a fast clock signal and divides its frequency to generate a slower pulse signal, enabling the DisplayCounter to update its value at controlled intervals
 module RateDivider #(
     input ClockIn,
-	 output reg Counter,
+    output reg Counter,
+    input Game,
     output reg Enable
 );
 
 
 	always @(posedge ClockIn) begin
-		  if (Reset) begin
+		if (Reset || !Game) begin
 			  counter <= 27d'50000000
 			  Enable <= 0;
 		  end
@@ -83,6 +84,7 @@ module DisplayCounter (
 	 input enable,
 	 input time_enable,
 	 input reset,
+	 input Game,
 	 output reg [3:0] case1,
 	 output reg [3:0] case2,
 	 output reg [3:0] case3,
@@ -112,7 +114,7 @@ module DisplayCounter (
 				time_signal <= 1'd1;
 			end
 	  end
-	  else if (reset || enable) begin
+	    else if (reset || enable || !Game) begin
 			case1 <= 4'd0;
 			case2 <= 4'd0;
 			case3 <= 4'd0;
