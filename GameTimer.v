@@ -38,7 +38,6 @@ module GameTimer #(
 			.case1(case1),
 			.case2(case2),
 			.case3(case3),
-			.CounterValue(CounterValue),
 			.time_signal(time_signal)
 	  );
 
@@ -87,7 +86,6 @@ module DisplayCounter (
 	 output reg [3:0] case1,
 	 output reg [3:0] case2,
 	 output reg [3:0] case3,
-    output reg [26:0] CounterValue,
 	 output reg time_signal
 );
 
