@@ -114,7 +114,7 @@ module DisplayCounter (
 				time_signal <= 1'd1;
 			end
 	  end
-	  else if (reset == 1'd1 || enable == 1'd1) begin
+	  else if (reset || enable) begin
 			case1 <= 4'd0;
 			case2 <= 4'd0;
 			case3 <= 4'd0;
