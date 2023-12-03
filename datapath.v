@@ -1,9 +1,9 @@
 module datapath(
-    input clk,
+    input clk, 
     input Reset,
     input [7:0] data_in, //player score
     input state, //state of game
-	 input timer_signal, // from timer signal
+	 input timer_signal, // from game timer signal
 	 input player_signal,  // player input hit or miss
 	 output reg enable_control, // switch back from mole to game screen
 	 output reg timer_done,  //switch to end game
@@ -14,11 +14,13 @@ module datapath(
 	 output reg [4:0] address // address
     );
 
-    reg [7:0] data_in; 
+   	 reg [7:0] data_in; 
 	 wire flag; // toggle
-	 
+	 wire input rate_enable; // passed rate divider slow frequency to wait
+	
+	 RateDivider r(.ClockIn(clk), .Reset(Reset, .Enable(rate_enable));
+	
 	 initial begin
-		timer_signal <= 8'd0;
 		data_result <= 8'd0;
 		data_in <= 8'd0;
 		enable_control <= 1'd0;
@@ -32,7 +34,6 @@ module datapath(
 	 
     always@(posedge clk) begin
         if (Reset) begin
-				timer_signal <= 8'd0;
 				data_result <= 8'd0;
 				data_in <= 8'd0;
 				enable_control <= 1'd0;
@@ -45,7 +46,6 @@ module datapath(
 		  end
 		  case (state)
 				3'b000:
-					timer_signal <= 8'd0;
 					data_result <= 8'd0;
 					data_in <= 8'd0;
 					enable_control <= 1'd0;
@@ -61,7 +61,7 @@ module datapath(
 						enable_control <= 1'd1;
 						flag <= 1'd0;
 					end
-					else begin
+					else if (rate_enable == 1'd1) begin
 						enable_control <= 1'd0;
 						flag <= 1'd1;
 					end
@@ -74,7 +74,7 @@ module datapath(
 						wren <= 1'd0
 						flag <= 1'd0;
 					end
-					else begin
+					else if (rate_enable == 1'd1) begin
 						enable_control <= 1'd0;
 						wren <= 1'd1;
 						flag <= 1'd1;
@@ -89,7 +89,7 @@ module datapath(
 						wren <= 1'd0
 						flag <= 1'd0;
 					end
-					else begin
+			  		else if (rate_enable == 1'd1) begin
 						enable_control <= 1'd0;
 						wren <= 1'd1;
 						flag <= 1'd1;
@@ -104,7 +104,7 @@ module datapath(
 						wren <= 1'd0
 						flag <= 1'd0;
 					end
-					else begin
+					else if (rate_enable == 1'd1) begin
 						enable_control <= 1'd0;
 						wren <= 1'd1;
 						flag <= 1'd1;
@@ -119,7 +119,7 @@ module datapath(
 						wren <= 1'd0
 						flag <= 1'd0;
 					end
-					else begin
+					else if (rate_enable == 1'd1) begin
 						enable_control <= 1'd0;
 						wren <= 1'd1;
 						flag <= 1'd1;
@@ -130,7 +130,7 @@ module datapath(
 						timer_doneTime <= 1d'1
 						flag <= 1'd0;
 					end
-					else begin
+					else if (rate_enable == 1'd1) begin
 						timer_doneTime <= 1'd0;
 						flag <= 1'd1;
 					end
