@@ -39,27 +39,26 @@ module DisplayCounter (
     output reg [3;0] case4,
     output reg [3:0] case5,
 );
-    lways @(posedge Clock)
+    always @(posedge Clock)
     begin
 	  if (reset || enable) begin
-			case4 <= 4'd0;
-			case5 <= 4'd0;
+		case4 <= 4'd0;
+		case5 <= 4'd0;
+	  end
+	  else begin
+	      if (case4 >= 4'd9) begin
+		case4 <= 4'd0;
+		case5 <= case5 + 1;
+	      end
+	      else if (case4 < 4'd9) begin
+		case4 <= case4 + 1;
+	      end
+			
+	      if (case5 > 4'd9) begin
+		case5 <= 4'd0;
+	      end
 	  end
     end
-    else begin
-            if (case4 >= 4'd9) begin
-				case4 <= 4'd0;
-				case5 <= case5 + 1;
-			end
-            else if (case4 < 4'd9) begin
-				case4 <= case4 + 1;
-			end
-			
-            if (case5 > 4'd9) begin
-				case5 <= 4'd0;
-			end
-
-	  end
 endmodule
 
 // Hex Display Module
