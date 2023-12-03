@@ -90,34 +90,41 @@ module DisplayCounter (
 	 output reg [3:0] case3,
 	 output reg time_signal
 );
-
+    reg flag;
+    initial begin
+	flag = 1'b0;
+    end
+	
     always @(posedge Clock)
     begin
 	  if (time_enable == 1'b1) begin
-			if (case1 >= 4'd9) begin
-				case1 <= 4'd0;
-				case2 <= case2 + 1;
-				time_signal <= 1'd0;
-			end
-			else if (case1 < 4'd9) begin
-				case1 <= case1 + 1;
-				time_signal <= 1'd0;
-			end
-			
-			if (case2 > 4'd5) begin
-				case2 <= 4'd0;
-				case3 <= case3 + 1;
-				time_signal <= 1'd0;
-			end
-			
-			if (case3 == 4'd1) begin
-				time_signal <= 1'd1;
-			end
-	  end
-	    else if (reset || enable || !Game) begin
+		if (case1 == 0 && case2 == 0 && case3 == 0) begin
+		  	flag <= 1'b1;
+		end
+		if (case1 >= 4'd9) begin
 			case1 <= 4'd0;
+			case2 <= case2 + 1;
+			time_signal <= 1'd0;
+		end
+		else if (case1 < 4'd9 && flag) begin
+			case1 <= case1 + 1;
+			time_signal <= 1'd0;
+		end
+		
+		if (case2 > 4'd5) begin
 			case2 <= 4'd0;
-			case3 <= 4'd0;
+			case3 <= case3 + 1;
+			time_signal <= 1'd0;
+		end
+		
+		if (case3 == 4'd1) begin
+			time_signal <= 1'd1;
+		end
+	  end
+	 else if (reset || enable || !Game) begin
+		case1 <= 4'd0;
+		case2 <= 4'd0;
+		case3 <= 4'd0;
 	  end
     end
 endmodule
