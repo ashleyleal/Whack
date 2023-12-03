@@ -15,27 +15,27 @@ module datapath(
     );
 
    	 reg [7:0] data_in; 
-	 wire flag; // toggle
-	 wire input rate_enable; // passed rate divider slow frequency to wait
-	
-	 RateDivider r(.ClockIn(clk), .Reset(Reset, .Enable(rate_enable));
+	 reg [27:0] counter; // toggle
+
 	
 	 initial begin
-		data_result <= 8'd0;
-		data_in <= 8'd0;
-		enable_control <= 1'd0;
-		timer_done <= 1'd0;
-		timer_doneTime <= 1'd0;
-		flag <= 1'd0;
-		game_start <= 1'd0;
-		wren <= 1'd0;
-		address <=5'd0;
+		data_result = 8'd0;
+		data_in = 8'd0;
+		counter = 27'd0;
+		enable_control = 1'd0;
+		timer_done = 1'd0;
+		timer_doneTime = 1'd0;
+		flag = 1'd0;
+		game_start = 1'd0;
+		wren = 1'd0;
+		address =5'd0;
 	 end
 	 
     always@(posedge clk) begin
         if (Reset) begin
 				data_result <= 8'd0;
 				data_in <= 8'd0;
+				counter <= 27'd0;
 				enable_control <= 1'd0;
 				timer_done <= 1'd0;
 				timer_doneTime <= 1'd0;
@@ -44,10 +44,13 @@ module datapath(
 				wren <= 1'd0;
 				address <=5'd0;
 		  end
+	  else
+		  
 		  case (state)
 				3'b000:
 					data_result <= 8'd0;
 					data_in <= 8'd0;
+			  		counter <= 27'd0;
 					enable_control <= 1'd0;
 					timer_done <= 1'd0;
 					timer_doneTime <= 1'd0;
@@ -57,86 +60,86 @@ module datapath(
 				3'b001:
 					game_start <= 1'd1;
 					
-					if (flag <= 1'd1) begin
+					if (counter <= 27'd50000000) begin
 						enable_control <= 1'd1;
-						flag <= 1'd0;
+						counter <= 27'd0;
 					end
-					else if (rate_enable == 1'd1) begin
+					else begin
 						enable_control <= 1'd0;
-						flag <= 1'd1;
+						counter <= counter + 1;
 					end
 				3'b010:
 					if (player_signal) begin
 						data_in <= data_in + 1;
 					end
-					if (flag <= 1'd1) begin
+			  		if (counter <= 27'd50000000) begin
 						enable_control <= 1'd1;
 						wren <= 1'd0
-						flag <= 1'd0;
+						counter <= 27'd0;
 					end
-					else if (rate_enable == 1'd1) begin
+					else begin
 						enable_control <= 1'd0;
 						wren <= 1'd1;
-						flag <= 1'd1;
+						counter <= counter + 1;
 					end
 				
 				3'b011:
 					if (player_signal) begin
 						data_in <= data_in + 1;
 					end
-					if (flag <= 1'd1) begin
+					if (counter <= 27'd50000000) begin
 						enable_control <= 1'd1;
 						wren <= 1'd0
-						flag <= 1'd0;
+						counter <= 27'd0;
 					end
-			  		else if (rate_enable == 1'd1) begin
+			  		else begin
 						enable_control <= 1'd0;
 						wren <= 1'd1;
-						flag <= 1'd1;
+						counter <= counter + 1;
 					end
 				
 				3'b100:
 					if (player_signal) begin
 						data_in <= data_in + 1;
 					end
-					if (flag <= 1'd1) begin
+					if (counter <= 27'd50000000) begin
 						enable_control <= 1'd1;
 						wren <= 1'd0
-						flag <= 1'd0;
+						counter <= 27'd0;
 					end
-					else if (rate_enable == 1'd1) begin
+					else begin
 						enable_control <= 1'd0;
 						wren <= 1'd1;
-						flag <= 1'd1;
+						counter <= counter + 1;
 					end
 				
 				3'b101:
 					if (player_signal) begin
 						data_in <= data_in + 1;
 					end
-					if (flag <= 1'd1) begin
+					if (counter <= 27'd50000000) begin
 						enable_control <= 1'd1;
 						wren <= 1'd0
-						flag <= 1'd0;
+						counter <= 27'd0;
 					end
-					else if (rate_enable == 1'd1) begin
+					else begin
 						enable_control <= 1'd0;
 						wren <= 1'd1;
-						flag <= 1'd1;
+						counter <= counter + 1;
 					end
 				
 				3'b110:
-					if (flag <= 1'd1) begin
+					if (counter <= 27'd50000000) begin
 						timer_doneTime <= 1d'1
-						flag <= 1'd0;
+						counter <= 27'd0;
 					end
-					else if (rate_enable == 1'd1) begin
+					else begin
 						timer_doneTime <= 1'd0;
-						flag <= 1'd1;
+						counter <= counter + 1;
 					end
 					address <= address + 1;
 		  end case
-		  
+	   end 
 		  if (timer_signal) begin
 				timer_done <= 1;
 		  end
