@@ -3,20 +3,16 @@ module DE1_SoC_Audio_Example (
 	// Inputs
 	CLOCK_50,
 	KEY,
-
 	AUD_ADCDAT,
-
 	// Bidirectionals
 	AUD_BCLK,
 	AUD_ADCLRCK,
 	AUD_DACLRCK,
 
 	FPGA_I2C_SDAT,
-
 	// Outputs
 	AUD_XCK,
 	AUD_DACDAT,
-
 	FPGA_I2C_SCLK,
 	SW
 );
