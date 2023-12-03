@@ -24,6 +24,25 @@ module drawImage (
   output wire oPlot;
 
   reg  [14:0] address;
+
+  // reg for each frame lol
+  reg [14:0] start_address;
+  reg [14:0] game_address;
+  reg [14:0] mole1_address;
+  reg [14:0] mole2_address;
+  reg [14:0] mole3_address;
+  reg [14:0] mole4_address;
+  reg [14:0] gameover_address;
+
+  // color for each frame
+  reg [ 2:0] start_color;
+  reg [ 2:0] game_color;
+  reg [ 2:0] mole1_color;
+  reg [ 2:0] mole2_color;
+  reg [ 2:0] mole3_color;
+  reg [ 2:0] mole4_color;
+  reg [ 2:0] gameover_color;
+
   reg [ 2:0] color_out;
   assign oPlot = 1'b1;
 
@@ -51,8 +70,14 @@ module drawImage (
   Mole4 = 3'b101,
   GameOver = 3'b110;
 
-  // instantiate memory rom block here to test; double check rom params
-  // whackstartscreen testStart(.address(address), .clock(iClock), .q(color_out));
+  // instantiate memory rom block here to test THIS IS UNTESTED
+  whackstartscreen startFrame(.address(start_address), .clock(iClock), .q(start_color));
+  whackgamescreen gameFrame(.address(game_address), .clock(iClock), .q(game_color));
+  whackmole1 mole1Frame(.address(mole1_address), .clock(iClock), .q(mole1_color));
+  whackmole2 mole2Frame(.address(mole2_address), .clock(iClock), .q(mole2_color));
+  whackmole3 mole3Frame(.address(mole3_address), .clock(iClock), .q(mole3_color));
+  whackmole4 mole4Frame(.address(mole4_address), .clock(iClock), .q(mole4_color));
+  whackgameover gameoverFrame(.address(gameover_address), .clock(iClock), .q(gameover_color));
 
 	assign oColour   = color_out;
 
@@ -62,14 +87,30 @@ module drawImage (
   // Choose image to draw based on state (testing colors for now)
   always @(posedge iState) begin
     case (iState)
-      Start: color_out <= Start; // Change color for each state
-      Game: color_out <= Game;
-      Mole1: color_out <= Mole1;
-      Mole2: color_out <= Mole2;
-      Mole3: color_out <= Mole3;
-      Mole4: color_out <= Mole4;
-      GameOver: color_out <= GameOver;
-      default: color_out <= 3'b000;
+      Start: 
+        color_out <= start_color;
+        address <= start_address;
+      Game: 
+        color_out <= game_color;
+        address <= game_address;
+      Mole1: 
+        color_out <= mole1_color;
+        address <= mole1_address;
+      Mole2: 
+        color_out <= mole2_color;
+        address <= mole2_address;
+      Mole3:
+        color_out <= mole3_color;
+        address <= mole3_address;
+      Mole4:
+        color_out <= mole4_color;
+        address <= mole4_address;
+      GameOver: 
+        color_out <= gameover_color;
+        address <= gameover_address;
+      default:
+        color_out <= 3'b000;
+        address <= 15'b0;
     endcase
 //    done <= 0;
 
