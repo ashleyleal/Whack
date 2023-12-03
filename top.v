@@ -79,8 +79,16 @@ module top (
   reg  [18:0] delay_cnt;
   wire [18:0] delay;
   reg         snd;
-  wire [1:0] hit_miss_sound; // hit_miss = 2'b10 when hit, 2'b01 when miss
+  wire [3:0] audio_sw;
+  wire hit_sound;
+  wire miss_sound;
 
+  // I don't know if this will work...
+  assign audio_sw[0] = hit_sound;
+  assign audio_sw[1] = miss_sound;
+  assign audio_sw[2] = 1'b0;
+  assign audio_sw[3] = 1'b0;
+  
   assign reset = SW[0];
   //    assign plot  = 1'b1;
 
@@ -188,9 +196,9 @@ module top (
       snd <= !snd;
     end else delay_cnt <= delay_cnt + 1;
 
-  assign delay = {hit_miss_sound, 15'd3000};
+  assign delay = {audio_sw, 15'd3000};
 
-  wire [31:0] sound = (hit_miss_sound == 0) ? 0 : snd ? 32'd10000000 : -32'd10000000;
+  wire [31:0] sound = (audio_sw == 0) ? 0 : snd ? 32'd10000000 : -32'd10000000;
 
   assign read_audio_in = audio_in_available & audio_out_allowed;
 
