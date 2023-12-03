@@ -194,7 +194,9 @@ module top (
       .reset        (reset)
   );
 
-  /* Audio Start*/
+/*****************************************************************************
+ *                            Audio                                          *
+ *****************************************************************************/
   always @(posedge CLOCK_50)
     if (delay_cnt == delay) begin
       delay_cnt <= 0;
@@ -210,9 +212,11 @@ module top (
   assign left_channel_audio_out = left_channel_audio_in + sound;
   assign right_channel_audio_out = right_channel_audio_in + sound;
   assign write_audio_out = audio_in_available & audio_out_allowed;
-  /* Audio End */
 
-  // show state signals on led for now
+
+/*****************************************************************************
+ *                         State Machine LED                                 *
+ *****************************************************************************/
   assign LEDR = outputLED;
   assign LEDR = outputLED;
   always @(posedge CLOCK_50) begin
