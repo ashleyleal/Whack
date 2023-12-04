@@ -10,6 +10,7 @@ module GameFSM (
   input control_signal, // input signal from datapath
   input timer_signal, // input signal from datapath
   output reg [3:0] state // output signal to other modules
+  output reg game_start, // output signal to datapath
 );
 
 wire [1:0] random_num; // random number from RNG module

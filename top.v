@@ -92,14 +92,14 @@ module top (
   wire hit_sound;
   wire miss_sound;
 
-  // I don't know if this will work...
+  // Assign to hit miss sound and button input and timer signal
   assign audio_sw[0] = ~KEY[1];
   assign audio_sw[1] = ~KEY[2];
   assign audio_sw[2] = 1'b0;
   assign audio_sw[3] = 1'b0;
 
   assign reset = SW[0];
-  //    assign plot  = 1'b1;
+//  assign plot  = 1'b1;
 
   // states
   localparam
@@ -122,23 +122,23 @@ module top (
 		.timer_signal(~KEY[3]),
       .state(state)
   );
-  drawImage drawImage (
-      .iResetn(reset),
-      .iClock(CLOCK_50),
-      .iState(state),
-      .oX(x),
-      .oY(y),
-      .oColour(colour),
-      .oPlot(plot)
-  );
+//  drawImage drawImage (
+//      .iResetn(reset),
+//      .iClock(CLOCK_50),
+//      .iState(state),
+//      .oX(x),
+//      .oY(y),
+//      .oColour(color),
+//      .oPlot(plot)
+//  );
 
   vga_adapter VGA (
       .resetn(reset),
       .clock(CLOCK_50),
-      .colour(colour),
+      .colour(color),
       .x(x),
       .y(y),
-      .plot(plot),
+      .plot(1'b1),
       /* Signals for the DAC to drive the monitor. */
       .VGA_R(VGA_R),
       .VGA_G(VGA_G),
@@ -151,7 +151,7 @@ module top (
   );
   defparam VGA.RESOLUTION = "160x120"; defparam VGA.MONOCHROME = "FALSE";
       defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
-      defparam VGA.BACKGROUND_IMAGE = "whackstartsceen.mif";
+      defparam VGA.BACKGROUND_IMAGE = "sus.mif";
 
   Audio_Controller Audio_Controller (
       // Inputs
