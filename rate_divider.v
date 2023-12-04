@@ -1,4 +1,4 @@
-module RateDivider #(
+module rate_divider (
     input ClockIn,
     input Reset,
     output Enable
