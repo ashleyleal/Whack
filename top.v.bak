@@ -77,7 +77,6 @@ module top (
   wire        plot;
   wire [ 2:0] color;
 
-  // General 
   wire        reset;
   reg  [ 6:0] outputLED;  // for testing signals
 
@@ -93,8 +92,8 @@ module top (
   wire miss_sound;
 
   // I don't know if this will work...
-  assign audio_sw[0] = ~KEY[1];
-  assign audio_sw[1] = ~KEY[2];
+  assign audio_sw[0] = hit_sound;
+  assign audio_sw[1] = miss_sound;
   assign audio_sw[2] = 1'b0;
   assign audio_sw[3] = 1'b0;
 
@@ -117,9 +116,9 @@ module top (
   GameFSM gameFSM (
       .clk(CLOCK_50),
       .reset(reset),
-      .input_signal(~KEY[1]),
-      .control_signal(~KEY[2]),
-		.timer_signal(~KEY[3]),
+      .input_signal(KEY[1]),
+      .control_signal(KEY[2]),
+      .timer_signal(KEY[3]),
       .state(state)
   );
   drawImage drawImage (
@@ -128,7 +127,7 @@ module top (
       .iState(state),
       .oX(x),
       .oY(y),
-      .oColour(colour),
+      .oColour(color),
       .oPlot(plot)
   );
 
@@ -150,7 +149,7 @@ module top (
       .VGA_CLK(VGA_CLK)
   );
   defparam VGA.RESOLUTION = "160x120"; defparam VGA.MONOCHROME = "FALSE";
-      defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
+      defparam VGA.BITS_PER_COLOUR_CHANNEL = 4;
       defparam VGA.BACKGROUND_IMAGE = "whackstartsceen.mif";
 
   Audio_Controller Audio_Controller (
