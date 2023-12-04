@@ -1,5 +1,5 @@
 // Top Level Module
-module GameTimer #(
+module GameTimer (
    input Clck,
 	input enable, //game_done
 	input reset,
