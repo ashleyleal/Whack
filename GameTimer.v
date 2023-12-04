@@ -1,30 +1,24 @@
 // Top Level Module
 module GameTimer (
    input Clck,
-	input enable, //game_done
 	input reset,
 	input game_start, //game started
 	output [6:0] HEX0,
 	output [6:0] HEX1,
 	output [6:0] HEX2,
-	output timer_signal;
+	output timer_signal
 );
   wire time_enable;
-  wire [26:0] CounterValue
+  wire [26:0] CounterValue;
   wire [3:0] case1;
   wire [3:0] case2;
   wire [3:0] case3;
 
-  initial begin
-	case1 = 4'd0;
-	case2 = 4'd0;
-	case3 = 4'd0;
-  end
-	
 	  // Instantiate Rate Divider
-	  RateDivider #(
+	  RateDivide RDInst(
 			.ClockIn(Clck),
-			.Counter  (CounterValue),
+			.Reset(reset),
+			.counter  (CounterValue),
 		  	.Game (game_start),
 			.Enable (time_enable)
 	  );
@@ -32,47 +26,51 @@ module GameTimer (
 	  // Instantiate Display Counter
 	  DisplayCounter DCInst (
 			.Clock(Clck),
-			.enable(enable),
 			.time_enable(time_enable),
 			.reset(reset),
 		  	.Game(game_start),
 			.case1(case1),
 			.case2(case2),
 			.case3(case3),
-			.time_signal(time_signal)
+			.time_signal(timer_signal)
 	  );
 
 		// Hex Decoder
 		HexDecoder HexInst (
-			.hex(case1), .hex1(case2), .hex2(case3) .display(HEX0), 
+			.hex(case3), .hex1(case2), 
+			.hex2(case1), .display(HEX0), 
 			.display1(HEX1), .display2(HEX2)
 		 );
 
 endmodule
 
 // Rate Divider Module takes a fast clock signal and divides its frequency to generate a slower pulse signal, enabling the DisplayCounter to update its value at controlled intervals
-module RateDivider #(
+module RateDivide (
     input ClockIn,
-    output reg Counter,
+	 input Reset,
+    output reg [26:0] counter,
     input Game,
     output reg Enable
 );
-
+	  
+   initial begin
+	  counter = 27'b010111110101111000010000000;
+   end
 
 	always @(posedge ClockIn) begin
 		if (Reset || !Game) begin
-			  counter <= 27d'50000000
-			  Enable <= 0;
+			  counter <= 27'b010111110101111000010000000;
+			  Enable <= 1'b0;
 		  end
 
 		  else begin
-			 if (counter == 0) begin 
-				counter <= 27'd50000000;
-				Enable <= 1;
+			 if (counter == 27'b0) begin 
+				counter <= 27'b010111110101111000010000000;
+				Enable <= 1'b1;
 			 end 
 			 else begin
 				counter <= counter - 1;
-				Enable <= 0;
+				Enable <= 1'b0;
 			 end
 		 end
     end
@@ -81,7 +79,6 @@ endmodule
 // Display Counter Module keeps track of a 4-bit value and increments it when the RateDivider provides EnableDC; provides a continuous stream of hexadecimal values matching the current count state of the counter to show on display
 module DisplayCounter (
     input Clock,
-	 input enable,
 	 input time_enable,
 	 input reset,
 	 input Game,
@@ -90,41 +87,34 @@ module DisplayCounter (
 	 output reg [3:0] case3,
 	 output reg time_signal
 );
-    reg flag;
-    initial begin
-	flag = 1'b0;
-    end
-	
+
     always @(posedge Clock)
     begin
 	  if (time_enable == 1'b1) begin
-		if (case1 == 0 && case2 == 0 && case3 == 0) begin
-		  	flag <= 1'b1;
-		end
-		if (case1 >= 4'd9) begin
-			case1 <= 4'd0;
-			case2 <= case2 + 1;
-			time_signal <= 1'd0;
-		end
-		else if (case1 < 4'd9 && flag) begin
-			case1 <= case1 + 1;
-			time_signal <= 1'd0;
-		end
-		
-		if (case2 > 4'd5) begin
-			case2 <= 4'd0;
-			case3 <= case3 + 1;
-			time_signal <= 1'd0;
-		end
-		
-		if (case3 == 4'd1) begin
-			time_signal <= 1'd1;
-		end
+			if (case3 >= 4'd9) begin
+				case3 <= 4'd0;
+				case2 <= case2 + 1;
+				time_signal <= 1'b0;
+			end
+			else if (case3 < 4'd9) begin
+				case3 <= case3 + 1;
+				time_signal <= 1'b0;
+			end
+			
+			if (case2 > 4'd5) begin
+				case2 <= 4'd0;
+				case1 <= case1 + 1;
+				time_signal <= 1'b0;
+			end
+			
+			if (case1 == 4'd1) begin
+				time_signal <= 1'd1;
+			end
 	  end
-	 else if (reset || enable || !Game) begin
-		case1 <= 4'd0;
-		case2 <= 4'd0;
-		case3 <= 4'd0;
+	    else if (reset || !Game) begin
+			case1 <= 4'd0;
+			case2 <= 4'd0;
+			case3 <= 4'd0;
 	  end
     end
 endmodule
