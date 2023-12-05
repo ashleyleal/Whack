@@ -108,10 +108,7 @@ module top (
   wire [7:0] Data_In;
   wire [7:0] Data_Out;
   wire wren;
-  reg [7:0] Data;
-  reg [7:0] top_score;
-
-  assign Data_In = Data;
+  
 	
   // regs and wires for audio
   reg  [18:0] delay_cnt;
@@ -142,26 +139,26 @@ module top (
 /*****************************************************************************
  *                              Memory Modules                             *
  *****************************************************************************/
-always @(posedge CLOCK_50) begin
-	if (reset == 1'b1) begin
-		Address <= 5'b0;
-		Data <= 8'b0;
-		top_score <= 8'b0;
-	end
-	else if (state == 3'b0) begin
-		Address <= 5'b0;
-		Data <= 8'b0;
-	end
-	else if (state == 3'b110) begin
-		Address <= 5'b00001;
-		Data <= top_score;
-	end
-	else begin
-		if (top_score < Data) begin
-			top_score <= Data;
-		end
-	end
-end
+//always @(posedge CLOCK_50) begin
+//	if (reset == 1'b1) begin
+//		Address <= 5'b0;
+//		Data <= 8'b0;
+//		top_score <= 8'b0;
+//	end
+//	else if (state == 3'b0) begin
+//		Address <= 5'b0;
+//		Data <= 8'b0;
+//	end
+//	else if (state == 3'b110) begin
+//		Address <= 5'b00001;
+//		Data <= top_score;
+//	end
+//	else begin
+//		if (top_score < Data) begin
+//			top_score <= Data;
+//		end
+//	end
+//end
 
 game_mem gm(
 	.address(Address),
@@ -174,47 +171,47 @@ game_mem gm(
 /*****************************************************************************
  *                              Internal Modules                             *
  *****************************************************************************/
-//hex_display hd( 
-//    .Clck(CLOCK_50),
-//	.reset(reset),
-//	.Data_In(Data_Out), // from game memory module
-//	.HEX4(HEX4),
-//	.HEX5(HEX5)
-//);
-//	
-//GameTimer gt(
-//	.Clck(clock_slow), // 1 sec clock
-//	.reset(reset),
-//	.game_start(game_start), //game started from FSM
-//	.HEX0(HEX0),
-//	.HEX1(HEX1),
-//	.HEX2(HEX2),
-//	.timer_signal(time_signal)
-//);
-//	
-//rate_divider rd(
-//	.Clk(CLOCK_50),
-//	.Reset(reset),
-//	.Enable(clock_slow)
-//);
-//	
-//Datapath Datapath(
-//    .clk(CLOCK_50), 
-//    .Reset(reset),
-//    .data_in(Data_Out), //player score
-//    .state(state), //state of game
-//    .player_signal(playerSignal),  // player input hit or miss
-//    .enable_control(enable_control), // switch back from mole to game screen
-//    .data_result(Data), // result of data
-//    .wren(wren) // read write
-//);
+hex_display hd( 
+    .Clck(CLOCK_50),
+	.reset(reset),
+	.Data_In(Data_Out), // from game memory module
+	.HEX4(HEX4),
+	.HEX5(HEX5)
+);
+	
+GameTimer gt(
+	.Clck(clock_slow), // 1 sec clock
+	.reset(reset),
+	.game_start(game_start), //game started from FSM
+	.HEX0(HEX0),
+	.HEX1(HEX1),
+	.HEX2(HEX2),
+	.timer_signal(time_signal)
+);
+	
+rate_divider rd(
+	.Clk(CLOCK_50),
+	.Reset(reset),
+	.Enable(clock_slow)
+);
+	
+Datapath Datapath(
+    .clk(CLOCK_50), 
+    .Reset(reset),
+    .data_in(Data_Out), //player score
+    .state(state), //state of game
+    .player_signal(playerSignal),  // player input hit or miss
+    .enable_control(enable_control), // switch back from mole to game screen
+    .data_result(Data_In), // result of data
+    .wren(wren) // read write
+);
 	
   GameFSM gameFSM (
       .clk(CLOCK_50),
       .reset(reset),
       .input_signal(~KEY[1]),
-      .control_signal(~KEY[2]),
-		.timer_signal(~KEY[3]),
+      .control_signal(enable_control),
+		.timer_signal(time_signal),
       .state(state),
       .game_start(game_start),
       .draw_enable(draw_enable)
