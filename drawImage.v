@@ -162,14 +162,13 @@ assign oPlot   = !plot;
     plot <= 1'b1;
 
     // Traversing screen from top left to bottom right using x and y counters
-    if (xpos < 10'd159) begin  // if not at end of row, increment x position
-      xpos <= xpos + 1'b1;
-    end
-      else if (ypos < 10'd120 && xpos == 10'd159) begin // if at end of row, but not at the last row, go to next row
+    if (ypos < 10'd120 && xpos == 10'd159) begin // if at end of row, but not at the last row, go to next row
       ypos <= ypos + 1'b1;  // increment y position to next row
       xpos <= 8'b0;  // reset x position to start of next row
     end
-
+	     else if (xpos < 10'd159) begin  // if not at end of row, increment x position
+      xpos <= xpos + 1'b1;
+    end
 
     // While drawing is in bounds, update background x and y positions to draw image via vga adapter
     if (ypos != 10'd120 && xpos != 10'd160 && !done) begin
