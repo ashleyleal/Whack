@@ -158,6 +158,7 @@ always @(posedge CLOCK_50) begin
 	end
 	else if (state == 3'b110) begin
 		Address <= 5'b00001;
+		Data <= top_score;
 	end
 	else begin
 		if (top_score < Data) begin
