@@ -1,6 +1,3 @@
-// Known Problems:
-// 1. Need to account for when multiple control signals are high at the same time, otherwise the FSM breaks
-
 // FSM module for game state control logic
 module GameFSM (
 
@@ -10,8 +7,8 @@ module GameFSM (
   input control_signal, // input signal from datapath
   input timer_signal, // input signal from datapath
   output reg [3:0] state, // output signal to other modules
-  output reg game_start // output signal to datapath
-  output load_enable // output signal to VGA draw
+  output reg game_start, // output signal to datapath
+  output reg draw_enable // output signal to VGA draw
 );
 
 wire [1:0] random_num; // random number from RNG module
@@ -24,7 +21,6 @@ initial begin
   inputS = 1'b0;
   timer = 1'b0;
   seed = 2'b00;
-  load_enable = 1'b0;
 end
 
 RandomNumberGenerator RNG(.clock(clk), .Reset(control_signal), .seed(seed), .random_num(random_num));
@@ -42,14 +38,15 @@ RandomNumberGenerator RNG(.clock(clk), .Reset(control_signal), .seed(seed), .ran
 // FSM state register
 reg [3:0] current_state, next_state;
 
-// Next state logic
+// Next state logic aka our state tablec
 always@(*)
 begin: state_table
   case (current_state)
+    Start: 
+		next_state = inputS ? Game : Start;
 
-    Start: next_state = inputS ? Game : Start;
-    
-    Game: 
+    Game:
+    begin
       if (timer) begin // timer takes priority over control signal
         next_state = GameOver;
       end
@@ -65,6 +62,7 @@ begin: state_table
       else begin 
         next_state = Game;
       end
+    end
     
     Mole1: next_state = control ? Game : Mole1; 
     Mole2: next_state = control ? Game : Mole2; 
@@ -72,10 +70,21 @@ begin: state_table
     Mole4: next_state = control ? Game : Mole4; 
 
     GameOver: next_state = inputS ? Start : GameOver;
-        
     default: next_state = Start;
   endcase
 end // state_table
+
+// Output logic aka all of our datapath control signals
+  always @(*) begin : enable_signals
+    // By default make all our signals 0
+    draw_enable = 1'b0;
+    game_start = 1'b0;
+
+    case (current_state)
+      Start, Game, Mole1, Mole2, Mole3, Mole4, GameOver: draw_enable = 1'b1;
+      Start: game_start = 1'b1;
+    endcase
+  end
 
 // Initial state assignment
 always @(posedge clk or posedge reset) begin
@@ -87,8 +96,15 @@ always @(posedge clk or posedge reset) begin
 end
 
 // Output logic
-always@(posedge clk)
-begin: state_FFS
+always@(posedge clk) begin: state_FFS
+
+    if (reset) begin
+      current_state <= Start;
+    end
+    else begin
+      current_state <= next_state;
+    end
+
     state <= current_state;
     control <= control_signal;
     inputS <= input_signal;
@@ -123,8 +139,5 @@ module RandomNumberGenerator(
       random_num <= lfsr + 1'b1;
     end
   end
-
-
-
 
 endmodule
