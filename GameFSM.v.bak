@@ -9,9 +9,8 @@ module GameFSM (
   input input_signal, // input signal from start button
   input control_signal, // input signal from datapath
   input timer_signal, // input signal from datapath
-  output reg [3:0] state, // output signal to other modules
-  output reg game_start // output signal to datapath
-  output load_enable // output signal to VGA draw
+  output reg [3:0] state // output signal to other modules
+  output reg game_start, // output signal to datapath
 );
 
 wire [1:0] random_num; // random number from RNG module
@@ -24,7 +23,6 @@ initial begin
   inputS = 1'b0;
   timer = 1'b0;
   seed = 2'b00;
-  load_enable = 1'b0;
 end
 
 RandomNumberGenerator RNG(.clock(clk), .Reset(control_signal), .seed(seed), .random_num(random_num));

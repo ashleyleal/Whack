@@ -138,7 +138,7 @@ module top (
       .colour(color),
       .x(x),
       .y(y),
-      .plot(1'b1),
+      .plot(1'b1),//writeEnable connected to state machine
       /* Signals for the DAC to drive the monitor. */
       .VGA_R(VGA_R),
       .VGA_G(VGA_G),

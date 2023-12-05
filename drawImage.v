@@ -1,6 +1,8 @@
 ////// Known Problems:
 ////// 1. The color drawn stays blue for all states
 ////
+// inout wire
+
 module drawImage (
     iResetn,
     iClock,
@@ -85,76 +87,80 @@ module drawImage (
   // Need to add conditionals to print out image based on state either here or in FSM
 
   // Choose image to draw based on state (testing colors for now)
-//always @(posedge iClock) begin
-//  
-//  if (current_state == Start) begin
-//    color_out <= start_color;
-//    address <= start_address;
-//	 color_out <= current_state;
-//	 
-//  end else if (current_state == Game) begin
-//    color_out <= game_color;
-//    address <= game_address;
-//  end else if (current_state == Mole1) begin
-//    color_out <= mole1_color;
-//    address <= mole1_address;
-//  end else if (current_state == Mole2) begin
-//    color_out <= mole2_color;
-//    address <= mole2_address;
-//  end else if (current_state == Mole3) begin
-//    color_out <= mole3_color;
-//    address <= mole3_address;
-//  end else if (current_state == Mole4) begin
-//    color_out <= mole4_color;
-//    address <= mole4_address;
-//  end else if (current_state == GameOver) begin
-//    color_out <= gameover_color;
-//    address <= gameover_address;
-//  end else begin
-//    color_out <= 3'b000;
+always @(posedge iClock) begin
+  
+  if (current_state == Start) begin
+    color_out <= start_color;
+    address <= start_address;
+	 color_out <= current_state;
+	 
+  end else if (current_state == Game) begin
+    color_out <= game_color;
+    address <= game_address;
+  end else if (current_state == Mole1) begin
+    color_out <= mole1_color;
+    address <= mole1_address;
+  end else if (current_state == Mole2) begin
+    color_out <= mole2_color;
+    address <= mole2_address;
+  end else if (current_state == Mole3) begin
+    color_out <= mole3_color;
+    address <= mole3_address;
+  end else if (current_state == Mole4) begin
+    color_out <= mole4_color;
+    address <= mole4_address;
+  end else if (current_state == GameOver) begin
+    color_out <= gameover_color;
+    address <= gameover_address;
+  end else begin
+    color_out <= 3'b000;
+    address <= 15'b0;
+  end
+    done <= 0;
+
+	// Reset drawing parameters when the state changes
+//    xpos <= 8'b0;
+//    ypos <= 8'b0;
 //    address <= 15'b0;
-//  end
-//    done <= 0;
-//
-//	// Reset drawing parameters when the state changes
-////    xpos <= 8'b0;
-////    ypos <= 8'b0;
-////    address <= 15'b0;
-////    xbg <= 8'b0;
-////    ybg <= 8'b0;
-////	enable <= 1'b1;
-//  end
+//    xbg <= 8'b0;
+//    ybg <= 8'b0;
+//	enable <= 1'b1;
+  end
 
   // Increment x and y positions to draw image
   always @(posedge iClock) begin
   
-//  current_state <= iState;
-//  color_out <= current_state;
+	current_state <= iState;
+	color_out <= current_state;
 
       if (ypos < 10'd120 && xpos == 10'd159) begin
         ypos <= ypos + 1'b1;
-        xpos <= 0;
-//		  address <= address + 1'b1;
+        xpos <= 0; // do nothing (remove)
+		  address <= address + 1'b1;
       end else if (xpos < 10'd160) begin
         xpos <= xpos + 1'b1;
-//		  address <= address + 1'b1;
+		  address <= address + 1'b1;
       end
 
       if (ypos != 10'd120 && xpos != 10'd160 && !done) begin
-        address <= address + 1'b1;
+//        address <= address + 1'b1;
         xbg <= xpos;
         ybg <= ypos;
       end
 
       if (ypos == 10'd119 && xpos == 10'd159) begin
+		// load enable
         done <= 1'b1;
         address <= 0;
         ypos <= 0;
         xpos <= 0;
-//		enable <= 0;
+		enable <= 0;
       end
 
   end
+  
+  
+  
 
 endmodule
 
