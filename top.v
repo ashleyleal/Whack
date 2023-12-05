@@ -141,8 +141,28 @@ module top (
 /*****************************************************************************
  *                              Memory Modules                             *
  *****************************************************************************/
+initial begin
+	Address = 5'b0;
+	Data = 8'b0;
+	top_score = 8'b0;
+end
 always @(posedge CLOCK_50) begin
 	if (reset == 1'b1) begin
+		Address <= 5'b0;
+		Data <= 8'b0;
+		top_score <= 8'b0;
+	end
+	else if (state == 3'b0) begin
+		Address <= 5'b0;
+		Data <= 8'b0;
+	end
+	else if (state == 3'b110) begin
+		Address <= 5'b00001;
+	end
+	else begin
+		if (top_score < Data) begin
+			top_score <= Data;
+		end
 	end
 end
 
