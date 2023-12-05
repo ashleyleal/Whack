@@ -13,7 +13,7 @@ module hex_display (
 	wire [7:0] case5;
 
     // Instantiate Display Counter
-	  DisplayCounter dc(
+	  DisplayCounter2 dc(
 	    .Clock(Clck),
 	    .Reset(reset),
 	    .data(Data_In),
@@ -30,7 +30,7 @@ module hex_display (
 
 endmodule
         
-module DisplayCounter (
+module DisplayCounter2 (
     input Clock,
     input Reset,
     input [7:0] data,

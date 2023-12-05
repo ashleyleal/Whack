@@ -43,12 +43,7 @@ module drawImage (
   reg [7:0] xpos, ypos;  // counters for tracking x and y positions
   reg [7:0] xbg, ybg;  // background x and y pixels
   reg done; // done signal to indicate when drawing is complete and plot can be asserted, also reset drawing parameters
-
-  initial address = 15'b0;
-  initial done = 1'b0;
-  // start at top left corner of screen
-  initial xpos = 8'b0;
-  initial ypos = 8'b0;
+  reg plot; // connected to oPlot
 
   // assign output pixels to drawn image pixels
   assign oX = xbg;
@@ -101,8 +96,8 @@ module drawImage (
       .q(gameover_color)
   );
 
-  assign oColour = color_out;
-  assign oPlot   = done;
+assign oColour = color_out;
+assign oPlot   = done;
 
   // Every clock cycle do the following:
   // 1. Choose image to draw based on current state, if enable is high
@@ -110,53 +105,19 @@ module drawImage (
   // 3. While drawing is in bounds, update background x and y positions to draw image via vga adapter
   // 4. If done drawing, assert plot signal and reset drawing parameters
 
-
   // Increment x and y positions to draw image
   always @(posedge iClock) begin
-    
-    if (done) begin  // reset drawing parameters
-      xpos <= 8'b0;
-      ypos <= 8'b0;
-      done <= 1'b0;
-    end
-
-    // Choose frame to draw based on current state, when enable is high
-    if (iEnable) begin
-      case (current_state)
-        Start: begin
-          color_out <= start_color;
-          address   <= start_address;
-        end
-        Game: begin
-          color_out <= game_color;
-          address   <= game_address;
-        end
-        Mole1: begin
-          color_out <= mole1_color;
-          address   <= mole1_address;
-        end
-        Mole2: begin
-          color_out <= mole2_color;
-          address   <= mole2_address;
-        end
-        Mole3: begin
-          color_out <= mole3_color;
-          address   <= mole3_address;
-        end
-        Mole4: begin
-          color_out <= mole4_color;
-          address   <= mole4_address;
-        end
-        GameOver: begin
-          color_out <= gameover_color;
-          address   <= gameover_address;
-        end
-        default: begin
-          color_out <= 3'b000;
-          address   <= 15'b0;
-        end
-      endcase
-    end
+  
+	 if (!iResetn) begin
+	 //initialize signals
+	   done <= 1'b0;
+		// start at top left corner of screen
+		xpos <= 8'b0;
+		ypos <= 8'b0;
+		address <= 15'b0;
+	end
+	
+	else begin
 
     // Traversing screen from top left to bottom right using x and y counters
     if (xpos < 10'd159) begin  // if not at end of row, increment x position
@@ -179,7 +140,16 @@ module drawImage (
     if (ypos == 10'd119 && xpos == 10'd159) begin  // if at end of last row, done drawing
       done <= 1'b1;
     end
-
+	 
+	 if (done) begin  // reset drawing parameters
+      plot <= 1'b1;
+		xpos <= 8'b0;
+      ypos <= 8'b0;
+      done <= 1'b0;
+    end
+	
+	end
+	 
   end
 
 

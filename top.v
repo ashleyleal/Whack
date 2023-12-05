@@ -95,6 +95,7 @@ module top (
   wire        reset;
   reg  [ 6:0] outputLED;  // for testing signals
   wire clock_slow;
+  wire playerSignal;
 
   // Wires for the FSM module
   wire [ 2:0] state;
@@ -126,7 +127,7 @@ module top (
   assign audio_sw[2] = 1'b0;
   assign audio_sw[3] = 1'b0;
 
-  assign reset = SW[0];
+  assign reset = ~SW[0];
 
   // states
   localparam
@@ -141,11 +142,11 @@ module top (
 /*****************************************************************************
  *                              Memory Modules                             *
  *****************************************************************************/
-initial begin
-	Address = 5'b0;
-	Data = 8'b0;
-	top_score = 8'b0;
-end
+//initial begin
+//	Address = 5'b0;
+//	Data = 8'b0;
+//	top_score = 8'b0;
+//end
 always @(posedge CLOCK_50) begin
 	if (reset == 1'b1) begin
 		Address <= 5'b0;
@@ -207,10 +208,10 @@ Datapath Datapath(
     .Reset(reset),
     .data_in(Data_Out), //player score
     .state(state), //state of game
-    .player_signal(// something here),  // player input hit or miss
+    .player_signal(playerSignal),  // player input hit or miss
     .enable_control(enable_control), // switch back from mole to game screen
-    .data_result(Data), // result of data
-    .wren(wren), // read write
+    .data_result(Data_In), // result of data
+    .wren(wren) // read write
 );
 	
   GameFSM gameFSM (
@@ -253,7 +254,7 @@ Datapath Datapath(
   );
   defparam VGA.RESOLUTION = "160x120"; defparam VGA.MONOCHROME = "FALSE";
       defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
-      defparam VGA.BACKGROUND_IMAGE = "sus.mif";
+      defparam VGA.BACKGROUND_IMAGE = "whackstartscreen.mif";
 
   Audio_Controller Audio_Controller (
       // Inputs
@@ -320,8 +321,7 @@ Datapath Datapath(
 /*****************************************************************************
  *                         State Machine LED                                 *
  *****************************************************************************/
-  assign LEDR = outputLED;
-  assign LEDR = outputLED;
+  assign LEDR[6:0] = outputLED;
   always @(posedge CLOCK_50) begin
     outputLED <= 7'b0;  // Reset all LEDs
     case (state)
@@ -334,6 +334,9 @@ Datapath Datapath(
       GameOver: outputLED[6] <= 1'b1;
     endcase
   end
+  
+  assign LEDR[7] = draw_enable;
+  assign LEDR[8] = plot;
 
 endmodule
 
