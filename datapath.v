@@ -6,7 +6,7 @@ module Datapath(
 	 input player_signal,  // player input hit or miss
 	 output reg enable_control, // switch back from mole to game screen
     output reg [7:0] data_result, // result of data
-	 output reg wren, // read write
+	 output reg wren // read write
     );
 
 	 reg [26:0] counter; // toggle
@@ -126,12 +126,7 @@ module Datapath(
 					end
 				end
 				3'b110: begin
-					if (counter == 27'b010111110101111000010000000) begin	
-						counter <= 1'b0;
-					end
-					else begin
-						counter <= counter + 1;
-					end
+					wren <= 1'b0;
 				end
 		  endcase
 	   end 
