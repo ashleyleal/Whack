@@ -86,15 +86,6 @@ end // state_table
     endcase
   end
 
-// Initial state assignment
-always @(posedge clk or posedge reset) begin
-  if (reset) begin
-    current_state <= Start; // if reset, return to Start state
-  end
-  else
-    current_state <= next_state;
-end
-
 // Output logic
 always@(posedge clk) begin: state_FFS
 

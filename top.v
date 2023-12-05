@@ -74,6 +74,10 @@ module top (
   // Wires for the draw module
   wire [ 7:0] x;
   wire [ 6:0] y;
+  // Difference between draw_enable and plot is that draw_enable is enabled when the state changes and drawImage selects
+  // the correct image to draw based on the state, and plot is enabled when the drawing is done and the VGA adapter should
+  // plot the pixels to the screen
+  wire draw_enable;
   wire        plot;
   wire [ 2:0] color;
 
@@ -83,6 +87,7 @@ module top (
 
   // Wires for the FSM module
   wire [ 2:0] state;
+  wire game_start; // from fsm to datapath
 
   // regs and wires for audio
   reg  [18:0] delay_cnt;
@@ -99,7 +104,6 @@ module top (
   assign audio_sw[3] = 1'b0;
 
   assign reset = SW[0];
-//  assign plot  = 1'b1;
 
   // states
   localparam
@@ -120,17 +124,20 @@ module top (
       .input_signal(~KEY[1]),
       .control_signal(~KEY[2]),
 		.timer_signal(~KEY[3]),
-      .state(state)
+      .state(state),
+      .game_start(game_start),
+      .draw_enable(draw_enable)
   );
-//  drawImage drawImage (
-//      .iResetn(reset),
-//      .iClock(CLOCK_50),
-//      .iState(state),
-//      .oX(x),
-//      .oY(y),
-//      .oColour(color),
-//      .oPlot(plot)
-//  );
+ drawImage drawImage (
+     .iResetn(reset),
+     .iClock(CLOCK_50),
+     .iState(state),
+      .iEnable(draw_enable),// enable when state changes
+     .oX(x),
+     .oY(y),
+     .oColour(color),
+     .oPlot(plot)
+ );
 
   vga_adapter VGA (
       .resetn(reset),
@@ -138,7 +145,7 @@ module top (
       .colour(color),
       .x(x),
       .y(y),
-      .plot(1'b1),//writeEnable connected to state machine
+      .plot(plot),// plot when done drawing
       /* Signals for the DAC to drive the monitor. */
       .VGA_R(VGA_R),
       .VGA_G(VGA_G),
