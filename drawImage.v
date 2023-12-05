@@ -97,8 +97,47 @@ module drawImage (
   );
 
 assign oColour = color_out;
-assign oPlot   = done;
+assign oPlot   = !plot;
 
+  always @(*) begin : decide_frame
+    case (current_state)
+		Start:
+    begin
+      address <= start_address;
+      color_out <= start_color;
+    end
+		Game:
+    begin
+       address <= game_address;
+      color_out <= game_color;
+    end
+		Mole1:
+    begin
+      address <= mole1_address;
+      color_out <= mole1_color;
+    end
+		Mole2:
+    begin
+      address <= mole2_address;
+      color_out <= mole2_color;
+    end
+    Mole3:
+    begin
+      address <= mole3_address;
+      color_out <= mole3_color;
+    end
+    Mole4:
+    begin
+      address <= mole4_address;
+      color_out <= mole4_color;
+    end
+    GameOver:
+    begin
+      address <= gameover_address;
+      color_out <= gameover_color;
+    end
+    endcase
+  end
   // Every clock cycle do the following:
   // 1. Choose image to draw based on current state, if enable is high
   // 2. Increment x and y positions to draw image, checking if within bounds
@@ -108,16 +147,19 @@ assign oPlot   = done;
   // Increment x and y positions to draw image
   always @(posedge iClock) begin
   
-	 if (!iResetn) begin
+	 if (!iResetn) begin // if reset
 	 //initialize signals
 	   done <= 1'b0;
+		plot <= 1'b0;
 		// start at top left corner of screen
 		xpos <= 8'b0;
 		ypos <= 8'b0;
 		address <= 15'b0;
 	end
 	
-	else begin
+	else if (iEnable) begin // not reset
+
+    plot <= 1'b1;
 
     // Traversing screen from top left to bottom right using x and y counters
     if (xpos < 10'd159) begin  // if not at end of row, increment x position
@@ -140,15 +182,15 @@ assign oPlot   = done;
     if (ypos == 10'd119 && xpos == 10'd159) begin  // if at end of last row, done drawing
       done <= 1'b1;
     end
-	 
-	 if (done) begin  // reset drawing parameters
+	
+	end
+	
+	if (done) begin  // reset drawing parameters
       plot <= 1'b1;
 		xpos <= 8'b0;
       ypos <= 8'b0;
       done <= 1'b0;
     end
-	
-	end
 	 
   end
 

@@ -4,7 +4,7 @@ module GameFSM (
   input clk, // 50 MHz clock
   input reset, // reset signal
   input input_signal, // input signal from start button
-  input control_signal, // input signal from datapath
+  input control_signal, // inpu`t signal from datapath
   input timer_signal, // input signal from datapath
   output reg [3:0] state, // output signal to other modules
 	output reg game_start, // output signal to Game Timer (data path updates based on state)
@@ -16,12 +16,6 @@ module GameFSM (
 
   reg control, inputS, timer;  // enable signals for FSM
 
-  initial begin
-    control = 1'b0;
-    inputS = 1'b0;
-    timer = 1'b0;
-    seed = 2'b00;
-  end
 
   RandomNumberGenerator RNG (
       .clock(clk),
