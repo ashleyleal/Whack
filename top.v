@@ -210,7 +210,7 @@ Datapath Datapath(
     .state(state), //state of game
     .player_signal(playerSignal),  // player input hit or miss
     .enable_control(enable_control), // switch back from mole to game screen
-    .data_result(Data_In), // result of data
+    .data_result(Data), // result of data
     .wren(wren) // read write
 );
 	
