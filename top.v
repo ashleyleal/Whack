@@ -22,7 +22,13 @@ module top (
     // Outputs
     AUD_XCK,
     AUD_DACDAT,
-    FPGA_I2C_SCLK
+    FPGA_I2C_SCLK,
+    HEX0,
+    HEX1,
+    HEX2,
+    HEX4,
+    HEX5
+
 );
 
 /*****************************************************************************
@@ -55,7 +61,11 @@ module top (
   output AUD_XCK;
   output AUD_DACDAT;
   output FPGA_I2C_SCLK;
-
+  output 	[6:0] HEX0;
+  output 	[6:0] HEX1;
+  output 	[6:0] HEX2;
+  output 	[6:0] HEX4;
+  output 	[6:0] HEX5;
 /*****************************************************************************
  *                 Internal Wires and Registers Declarations                 *
  *****************************************************************************/
@@ -84,11 +94,24 @@ module top (
   // General 
   wire        reset;
   reg  [ 6:0] outputLED;  // for testing signals
+  wire clock_slow;
 
   // Wires for the FSM module
   wire [ 2:0] state;
   wire game_start; // from fsm to datapath
+  wire time_signal;
+  wire enable_control;
 
+  // Memory
+  reg [4:0] Address;
+  wire [7:0] Data_In;
+  wire [7:0] Data_Out;
+  wire wren;
+  reg [7:0] Data;
+  reg [7:0] top_score;
+
+  assign Data_In = Data;
+	
   // regs and wires for audio
   reg  [18:0] delay_cnt;
   wire [18:0] delay;
@@ -114,10 +137,82 @@ module top (
     Mole3 = 3'b100,
     Mole4 = 3'b101,
     GameOver = 3'b110;
+
+/*****************************************************************************
+ *                              Memory Modules                             *
+ *****************************************************************************/
+initial begin
+	Address = 5'b0;
+	Data = 8'b0;
+	top_score = 8'b0;
+end
+always @(posedge CLOCK_50) begin
+	if (reset == 1'b1) begin
+		Address <= 5'b0;
+		Data <= 8'b0;
+		top_score <= 8'b0;
+	end
+	else if (state == 3'b0) begin
+		Address <= 5'b0;
+		Data <= 8'b0;
+	end
+	else if (state == 3'b110) begin
+		Address <= 5'b00001;
+		Data <= top_score;
+	end
+	else begin
+		if (top_score < Data) begin
+			top_score <= Data;
+		end
+	end
+end
+
+game_mem gm(
+	.address(Address),
+	.clock(CLOCK_50),
+	.data(Data_In),
+	.wren(wren),
+	.q(Data_Out)
+);
+
 /*****************************************************************************
  *                              Internal Modules                             *
  *****************************************************************************/
-
+hex_display hd( 
+    .Clck(CLOCK_50),
+	.reset(reset),
+	.Data_In(Data_Out), // from game memory module
+	.HEX4(HEX4),
+	.HEX5(HEX5)
+);
+	
+GameTimer gt(
+	.Clck(clock_slow), // 1 sec clock
+	.reset(reset),
+	.game_start(game_start), //game started from FSM
+	.HEX0(HEX0),
+	.HEX1(HEX1),
+	.HEX2(HEX2),
+	.timer_signal(time_signal)
+);
+	
+rate_divider rd(
+	.Clk(CLOCK_50),
+	.Reset(reset),
+	.Enable(clock_slow)
+);
+	
+Datapath Datapath(
+    .clk(CLOCK_50), 
+    .Reset(reset),
+    .data_in(Data_Out), //player score
+    .state(state), //state of game
+    .player_signal(// something here),  // player input hit or miss
+    .enable_control(enable_control), // switch back from mole to game screen
+    .data_result(Data), // result of data
+    .wren(wren), // read write
+);
+	
   GameFSM gameFSM (
       .clk(CLOCK_50),
       .reset(reset),
