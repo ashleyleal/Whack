@@ -1,14 +1,14 @@
 // FSM module for game state control logic
 module GameFSM (
 
-    input clk,  // 50 MHz clock
-    input reset,  // reset signal
-    input input_signal,  // input signal from start button
-    input control_signal,  // input signal from datapath
-    input timer_signal,  // input signal from datapath
-    output reg [3:0] state,  // output signal to other modules
-    output reg game_start,  // output signal to datapath
-    output reg draw_enable  // output signal to VGA draw
+  input clk, // 50 MHz clock
+  input reset, // reset signal
+  input input_signal, // input signal from start button
+  input control_signal, // input signal from datapath
+  input timer_signal, // input signal from datapath
+  output reg [3:0] state, // output signal to other modules
+	output reg game_start, // output signal to Game Timer (data path updates based on state)
+  output reg draw_enable // output signal to VGA draw
 );
 
   wire [1:0] random_num;  // random number from RNG module
