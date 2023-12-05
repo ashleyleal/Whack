@@ -1,127 +1,34 @@
-// Top Level Module
-module GameTimer (
-   input Clck, // 1 sec clock
-	input reset,
-	input game_start, //game started from FSM
-	output [6:0] HEX0,
-	output [6:0] HEX1,
-	output [6:0] HEX2,
-	output timer_signal
+module rate_divider (
+    input Clk,
+    input Reset,
+    output reg Enable
 );
-  wire [3:0] case1;
-  wire [3:0] case2;
-  wire [3:0] case3;
+	
+  reg [26:0] counter;
+  
+  initial begin
+		counter <= 27'b010111110101111000010000000;
+  end
+  
+  always @(posedge Clk) begin
+    if (Reset) begin
+		counter <= 27'b010111110101111000010000000;
+		Enable <= 1'b0;
+    end
 
-	  // Instantiate Display Counter
-	  DisplayCounter DCInst (
-			.Clock(Clck),
-			.reset(reset),
-		  	.Game(game_start),
-			.case1(case1),
-			.case2(case2),
-			.case3(case3),
-			.time_signal(timer_signal)
-	  );
-
-		// Hex Decoder
-		HexDecoder HexInst (
-			.hex(case1), .hex1(case2), 
-			.hex2(case3), .display(HEX0), 
-			.display1(HEX1), .display2(HEX2)
-		 );
-
-endmodule
-
-// Display Counter Module keeps track of a 4-bit value and increments it when the RateDivider provides EnableDC; provides a continuous stream of hexadecimal values matching the current count state of the counter to show on display
-module DisplayCounter (
-    input Clock,
-	 input reset,
-	 input Game,
-	 output reg [3:0] case1,
-	 output reg [3:0] case2,
-	 output reg [3:0] case3,
-	 output reg time_signal
-);
-	 
-	 initial begin
-		 case1 = 4'b0;
-		 case2 = 4'b0;
-		 case3 = 4'b0;
-		 time_signal = 4'b0;
-	 end
-	 
-	 
-    always @(posedge Clock)
-    begin
-	  if (reset || ~Game) begin
-			case1 <= 4'b0;
-			case2 <= 4'b0;
-			case3 <= 4'b0;
-			time_signal <= 1'b0;
-	  end
-	   else if (Game == 1'b1) begin
-			if (case1 > 4'b1001) begin
-				case1 <= 4'b0;
-				case2 <= case2 + 1;
-				time_signal <= 1'b0;
-			end
-			else if (case1 <= 4'b1001) begin
-				case1 <= case1 + 1;
-				time_signal <= 1'b0;
-			end
-			
-			if (case2 > 4'b0101) begin
-				case2 <= 4'b0;
-				case3 <= case3 + 1;
-				time_signal <= 1'b0;
-			end
-			
-			if (case3 == 4'b0001) begin
-				time_signal <= 1'b1;
-			end
-      end
+    else begin
+		if (counter == 27'b0) begin 
+			counter <= 27'b010111110101111000010000000;
+			Enable <= 1'b1;
+		end 
+		else begin
+			counter <= counter - 1;
+			Enable <= 1'b0;
+		end
 	end
+  end
+
 endmodule
 
-// Hex Display Module
-module HexDecoder(
-    input [3:0] hex,
-	 input [3:0] hex1,
-	 input [3:0] hex2,
-    output reg [6:0] display,
-	 output reg [6:0] display1,
-	 output reg [6:0] display2
-);
-always @(*)
-    begin
-		case(hex)
-        4'b0: display = 7'b1000000; // 0
-        4'b0001: display = 7'b1111001; // 1
-        4'b0010: display = 7'b0100100; // 2
-        4'b0011: display = 7'b0110000; // 3
-        4'b0100: display = 7'b0011001; // 4
-        4'b0101: display = 7'b0010010; // 5
-        4'b0110: display = 7'b0000010; // 6
-        4'b0111: display = 7'b1111000; // 7
-        4'b1000: display = 7'b0000000; // 8
-        4'b1001: display = 7'b0010000; // 9
-        default: display = 7'b1111111; // Display nothing
-		endcase
-		
-		case(hex1)
-        4'b0: display1 = 7'b1000000; // 0
-        4'b0001: display1 = 7'b1111001; // 1
-        4'b0010: display1 = 7'b0100100; // 2
-        4'b0011: display1 = 7'b0110000; // 3
-        4'b0100: display1 = 7'b0011001; // 4
-        4'b0101: display1 = 7'b0010010; // 5
-        default: display1 = 7'b1111111; // Display nothing
-		endcase
-		
-		case(hex2)
-        4'b0: display2 = 7'b1000000; // 0
-        4'b0001: display2 = 7'b1111001; // 1
-        default: display2 = 7'b1111111; // Display nothing
-		endcase
-end
-endmodule
+// for game input and changing screen
+// memory
