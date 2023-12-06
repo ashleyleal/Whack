@@ -11,13 +11,14 @@ module Datapath(
 
 	 reg [26:0] counter; // toggle
 	 reg change; // allows change of data_result
-	 
+	 reg flag; // allows increment
 	
 	 initial begin
 		data_result = 8'b0;
 		counter = 27'b0;
 		change = 1'b0;
 		enable_control = 1'b0;
+		flag = 1'b1;
 		wren = 1'b0;
 	 end
 	 
@@ -27,6 +28,7 @@ module Datapath(
 				counter <= 27'b0;
 				change <= 1'b0;
 				enable_control <= 1'b0;
+				flag = 1'b1;
 				wren <= 1'b0;
 		  end
 	  else begin
@@ -37,10 +39,11 @@ module Datapath(
 					counter <= 27'b0;
 					change <= 1'b0;
 					enable_control <= 1'b0;
+					flag = 1'b1;
 					wren <= 1'b0;
 				end
 				3'b001: begin
-					if (counter == 27'b101111101011110000100000000) begin
+					if (counter == 27'b010111110101111000010000000) begin
 						enable_control <= 1'b1;
 						counter <= 27'b0;
 					end
@@ -54,13 +57,15 @@ module Datapath(
 						data_result <= data_in + 1;
 						change <= 1'b0;
 					end
-			  		if (counter == 27'b010111110101111000010000000) begin
+			  		if (counter == 27'b010111110101111000010000000 && flag) begin
 						change <= 1'b1;
+						flag <= 1'b0;
 					end
-					else if (counter == 27'b101111101011110000100000000) begin
+					else if (counter == 27'b010111110101111000010000000) begin
 						enable_control <= 1'b1;
 						wren <= 1'b0;
 						counter <= 27'b0;
+						flag <= 1'b1;
 					end
 					else begin
 						enable_control <= 1'b0;
@@ -73,13 +78,15 @@ module Datapath(
 						data_result <= data_in + 1;
 						change <= 1'b0;
 					end
-			  		if (counter == 27'b010111110101111000010000000) begin
+			  		if (counter == 27'b010111110101111000010000000 && flag) begin
 						change <= 1'b1;
+						flag <= 1'b0;
 					end
-					else if (counter == 27'b101111101011110000100000000) begin
+					else if (counter == 27'b010111110101111000010000000) begin
 						enable_control <= 1'b1;
 						wren <= 1'b0;
 						counter <= 27'b0;
+						flag <= 1'b1;
 					end
 					else begin
 						enable_control <= 1'b0;
@@ -92,13 +99,15 @@ module Datapath(
 						data_result <= data_in + 1;
 						change <= 1'b0;
 					end
-			  		if (counter == 27'b010111110101111000010000000) begin
+			  		if (counter == 27'b010111110101111000010000000 && flag) begin
 						change <= 1'b1;
+						flag <= 1'b0;
 					end
-					else if (counter == 27'b101111101011110000100000000) begin
+					else if (counter == 27'b010111110101111000010000000) begin
 						enable_control <= 1'b1;
 						wren <= 1'b0;
 						counter <= 27'b0;
+						flag <= 1'b1;
 					end
 					else begin
 						enable_control <= 1'b0;
@@ -111,13 +120,15 @@ module Datapath(
 						data_result <= data_in + 1;
 						change <= 1'b0;
 					end
-			  		if (counter == 27'b010111110101111000010000000) begin
+			  		if (counter == 27'b010111110101111000010000000 && flag) begin
 						change <= 1'b1;
+						flag <= 1'b0;
 					end
-					else if (counter == 27'b101111101011110000100000000) begin
+					else if (counter == 27'b010111110101111000010000000) begin
 						enable_control <= 1'b1;
 						wren <= 1'b0;
 						counter <= 27'b0;
+						flag <= 1'b1;
 					end
 					else begin
 						enable_control <= 1'b0;
