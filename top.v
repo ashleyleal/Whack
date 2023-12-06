@@ -175,14 +175,7 @@ game_mem gm(
 /*****************************************************************************
  *                              Internal Modules                             *
  *****************************************************************************/
-always @(*) begin
-	if (enable_control) begin
-		write_check <= 1'b1;
-	end
-	else begin
-		write_check <= 1'b0;
-	end
-end
+
 Crossing c(
   .clk(clock_slow),
   .clk2(CLOCK_50)
