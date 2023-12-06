@@ -108,7 +108,11 @@ module top (
   wire [7:0] Data_In;
   wire [7:0] Data_Out;
   wire wren;
-  
+
+  // crossing
+  wire out;
+
+  assign write = write_check;
 	
   // regs and wires for audio
   reg  [18:0] delay_cnt;
@@ -171,6 +175,22 @@ game_mem gm(
 /*****************************************************************************
  *                              Internal Modules                             *
  *****************************************************************************/
+always @(*) begin
+	if (enable_control) begin
+		write_check <= 1'b1;
+	end
+	else begin
+		write_check <= 1'b0;
+	end
+end
+Crossing c(
+  .clk(clock_slow),
+  .clk2(CLOCK_50)
+  .reset(reset),
+  .data_in(time_signal),
+  .data_out(out),
+);
+	
 hex_display hd( 
     .Clck(CLOCK_50),
 	.reset(reset),
@@ -211,7 +231,7 @@ Datapath Datapath(
       .reset(reset),
       .input_signal(~KEY[1]),
       .control_signal(enable_control),
-		.timer_signal(time_signal),
+	  .timer_signal(out),
       .state(state),
       .game_start(game_start),
       .draw_enable(draw_enable)
