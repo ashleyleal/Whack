@@ -8,4 +8,5 @@ This project implements a digital version of the classic arcade Whack-a-Mole gam
 
 # High-Level Block Diagram and Task Division
 
-![High-Level Block Diagram (3)](https://github.com/ashleyleal/Whack/assets/69736735/248444a5-8ef1-458a-a434-acfbc99d5458)
+![High-Level Block Diagram (4)](https://github.com/ashleyleal/Whack/assets/69736735/80d1691b-b830-4534-acf7-bdfaaa2edcf9)
+
